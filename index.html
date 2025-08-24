@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AVODA DEX - Dashboard</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script defer src="assets/js/app.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">AVODA</div>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Dashboard</a></li>
+        <li><a href="swap.html">Swap</a></li>
+        <li><a href="liquidity.html">Liquidity</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li>
+      </ul>
+      <button class="theme-toggle"><i class="fas fa-moon"></i></button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Welcome to AVODA DEX</h1>
+    <p class="subtitle">Trade, Swap, and Earn with lightning-fast transactions.</p>
+    
+    <section class="dashboard">
+      <div class="card">
+        <h2>Market Overview</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Pair</th>
+              <th>Price</th>
+              <th>24h Change</th>
+              <th>Volume</th>
+            </tr>
+          </thead>
+          <tbody id="market-data">
+            <tr><td>AVD/USDT</td><td>$0.12</td><td class="up">+5.2%</td><td>$1.2M</td></tr>
+            <tr><td>BTC/AVD</td><td>0.000021</td><td class="down">-1.1%</td><td>$850K</td></tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="card chart">
+        <h2>Live Chart (Coming Soon)</h2>
+        <div class="chart-placeholder">TradingView Widget Placeholder</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 AVODA DEX. Built for Myanmar.</p>
+  </footer>
+</body>
+      </html>
