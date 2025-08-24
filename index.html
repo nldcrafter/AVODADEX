@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AVODA DEX - Dashboard</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <script defer src="assets/js/app.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+  <!-- NAVBAR -->
   <header>
     <nav class="navbar">
       <div class="logo">AVODA</div>
@@ -22,12 +24,13 @@
     </nav>
   </header>
 
-  <main class="container">
-    <h1>Welcome to AVODA DEX</h1>
-    <p class="subtitle">Trade, Swap, and Earn with lightning-fast transactions.</p>
-    
+  <!-- MAIN CONTENT -->
+  <main class="container fade-in">
+    <h1 class="title">Welcome to AVODA DEX</h1>
+    <p class="subtitle">Fast • Secure • Built for Myanmar</p>
+
     <section class="dashboard">
-      <div class="card">
+      <div class="card slide-up">
         <h2>Market Overview</h2>
         <table>
           <thead>
@@ -35,6 +38,29 @@
               <th>Pair</th>
               <th>Price</th>
               <th>24h Change</th>
+              <th>Volume</th>
+            </tr>
+          </thead>
+          <tbody id="market-data">
+            <tr><td>AVD/USDT</td><td>$0.12</td><td class="up">+5.2%</td><td>$1.2M</td></tr>
+            <tr><td>BTC/AVD</td><td>0.000021</td><td class="down">-1.1%</td><td>$850K</td></tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="card slide-up delay">
+        <h2>Live Chart</h2>
+        <div class="chart-placeholder">TradingView Widget Coming Soon</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 AVODA DEX. Built for Myanmar.</p>
+  </footer>
+</body>
+  </html>              <th>24h Change</th>
               <th>Volume</th>
             </tr>
           </thead>
