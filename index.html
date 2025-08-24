@@ -7,34 +7,210 @@
 <style>
 /* Reset & basics */
 * {margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
-body {background: #0a0a0a; color:#fff; overflow-x:hidden;}
-a {text-decoration:none; color:inherit;}
-h1,h2,h3,h4,h5,h6 {margin-bottom:0.5em;}
-button {cursor:pointer;}
+body {background:#0a0a0a;color:#fff;overflow-x:hidden;}
+a {text-decoration:none;color:inherit;}
+h1,h2,h3,h4,h5,h6{margin-bottom:0.5em;}
+button{cursor:pointer;}
 
 /* Neon glow variables */
-:root {
+:root{
   --neon-blue:#00f0ff;
   --neon-purple:#b400ff;
   --neon-bg:#0a0a0a;
   --neon-hover:#00ffff;
 }
 
-/* Floating particles background */
-#particles {
-  position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1;
-  background: radial-gradient(circle, rgba(15,15,15,1) 0%, rgba(10,10,10,1) 100%);
+/* Particles background */
+#particles{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;
+  background: radial-gradient(circle,#0f0f0f 0%,#0a0a0a 100%);
   overflow:hidden;
 }
+.particle{position:absolute;border-radius:50%;background:linear-gradient(45deg,#00f0ff,#b400ff);width:6px;height:6px;opacity:0.5;animation:float 10s linear infinite;}
+@keyframes float{0%{transform:translateY(0px);}50%{transform:translateY(-50px);}100%{transform:translateY(0px);}}
 
-/* Particle style */
-.particle {
-  position:absolute; border-radius:50%; background: linear-gradient(45deg, #00f0ff, #b400ff);
-  width:6px; height:6px; opacity:0.5; animation: float 10s linear infinite;
+/* Container */
+.container{max-width:1200px;margin:0 auto;padding:20px;}
+
+/* Top ticker */
+#ticker{
+  position:fixed;top:0;left:0;width:100%;height:40px;background:#111;border-bottom:1px solid #333;display:flex;align-items:center;overflow:hidden;z-index:10;
 }
-@keyframes float {
-  0% {transform: translateY(0px);}
-  50% {transform: translateY(-50px);}
+#ticker div{white-space:nowrap;padding-right:50px;font-weight:bold;color:#0ff;animation:scroll 20s linear infinite;}
+@keyframes scroll{0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
+
+/* Tabs */
+.tab-buttons{display:flex;justify-content:center;margin-top:50px;margin-bottom:30px;}
+.tab-buttons button{
+  background:none;border:1px solid #333;padding:10px 20px;margin:0 5px;color:#fff;font-weight:bold;border-radius:8px;transition:0.3s;text-transform:uppercase;
+}
+.tab-buttons button.active,.tab-buttons button:hover{
+  border-color:var(--neon-purple);
+  box-shadow:0 0 10px var(--neon-purple),0 0 20px var(--neon-blue);
+}
+
+/* Sections */
+.tab{display:none;animation:fadeIn 0.5s;}
+.tab.active{display:block;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+/* Home page */
+#home{text-align:center;padding-top:50px;}
+.logo{font-size:4em;font-weight:bold;color:var(--neon-blue);text-shadow:0 0 10px #00f0ff,0 0 20px #b400ff,0 0 30px #00f0ff;animation:glow 2s infinite alternate;}
+@keyframes glow{0%{text-shadow:0 0 10px #00f0ff,0 0 20px #b400ff;}100%{text-shadow:0 0 20px #00f0ff,0 0 40px #b400ff;}}
+.tagline{font-size:1.5em;margin-top:20px;color:#b400ff;text-shadow:0 0 5px #00f0ff,0 0 10px #b400ff;}
+
+/* Swap panel */
+#swap{display:flex;justify-content:center;}
+.swap-box{background:#111;padding:20px;border-radius:15px;box-shadow:0 0 20px #00f0ff;width:300px;transition:0.3s;}
+.swap-box:hover{box-shadow:0 0 40px #b400ff,0 0 60px #00f0ff;}
+.swap-box input,.swap-box select{width:100%;padding:10px;margin:10px 0;border-radius:8px;border:none;outline:none;background:#222;color:#fff;text-align:center;}
+.swap-box button{width:100%;padding:10px;margin-top:10px;border:none;border-radius:8px;background:linear-gradient(90deg,#00f0ff,#b400ff);color:#000;font-weight:bold;transition:0.3s;}
+.swap-box button:hover{box-shadow:0 0 20px #00f0ff,0 0 30px #b400ff;transform:scale(1.05);}
+
+/* Pools table */
+#pools table{width:100%;border-collapse:collapse;margin-top:20px;}
+#pools th,#pools td{padding:15px;border-bottom:1px solid #333;text-align:center;}
+#pools th{color:var(--neon-purple);}
+#pools tr:hover{background: rgba(0,240,255,0.1);}
+
+/* Wallet */
+#wallet{text-align:center;padding-top:30px;}
+.wallet-balance{font-size:2em;margin-bottom:20px;color:#00f0ff;text-shadow:0 0 5px #00f0ff,0 0 10px #b400ff;}
+.connect-btn{padding:10px 30px;border:none;border-radius:10px;background:linear-gradient(90deg,#00f0ff,#b400ff);color:#000;font-weight:bold;transition:0.3s;}
+.connect-btn:hover{box-shadow:0 0 20px #00f0ff,0 0 30px #b400ff;transform:scale(1.05);}
+
+/* Footer */
+footer{text-align:center;margin-top:50px;padding:20px 0;border-top:1px solid #333;color:#888;font-size:0.9em;}
+
+/* Fake chart */
+.chart{width:100%;height:300px;background:#111;border-radius:15px;margin-top:20px;position:relative;}
+.candle{position:absolute;width:4px;background:#00f0ff;bottom:0;transition:0.3s;}
+
+/* Extra shimmer */
+.swap-box:hover,.connect-btn:hover, .tab-buttons button:hover{animation:shimmer 2s infinite alternate;}
+@keyframes shimmer{0%{box-shadow:0 0 20px #00f0ff;}50%{box-shadow:0 0 30px #b400ff;}100%{box-shadow:0 0 40px #00f0ff;}}
+</style>
+</head>
+<body>
+
+<div id="particles"></div>
+
+<!-- Top Ticker -->
+<div id="ticker">
+  <div id="tickerContent">
+    AVD +3.2% | BTC +0.8% | ETH +1.5% | USDT Stable | AVODA Liquidity Pools hit $1.2M | AVODA Swap Volume +$500k |
+  </div>
+</div>
+
+<div class="container">
+  <!-- Tabs -->
+  <div class="tab-buttons">
+    <button class="active" onclick="openTab('home')">Home</button>
+    <button onclick="openTab('swap')">Swap</button>
+    <button onclick="openTab('pools')">Pools</button>
+    <button onclick="openTab('wallet')">Wallet</button>
+    <button onclick="openTab('about')">About</button>
+  </div>
+
+  <!-- Home -->
+  <div id="home" class="tab active">
+    <div class="logo">AVODA</div>
+    <div class="tagline">Next-Gen Blockchain Experience</div>
+    <div class="chart" id="fakeChart"></div>
+  </div>
+
+  <!-- Swap -->
+  <div id="swap" class="tab">
+    <div class="swap-box">
+      <input type="text" placeholder="From Token">
+      <input type="text" placeholder="To Token">
+      <select>
+        <option>Max</option>
+        <option>50%</option>
+        <option>25%</option>
+      </select>
+      <button>Swap</button>
+    </div>
+  </div>
+
+  <!-- Pools -->
+  <div id="pools" class="tab">
+    <table>
+      <thead>
+        <tr><th>Pool</th><th>TVL</th><th>APR</th><th>Liquidity</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>AVD/USDT</td><td>$1,200,000</td><td>12%</td><td>$800,000</td></tr>
+        <tr><td>AVD/BTC</td><td>$800,000</td><td>15%</td><td>$500,000</td></tr>
+        <tr><td>AVD/ETH</td><td>$500,000</td><td>10%</td><td>$300,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Wallet -->
+  <div id="wallet" class="tab">
+    <div class="wallet-balance">Balance: 1,000 AVD</div>
+    <button class="connect-btn">Connect Wallet</button>
+  </div>
+
+  <!-- About -->
+  <div id="about" class="tab" style="text-align:center; padding-top:50px;">
+    <h2>About AVODA</h2>
+    <p>AVODA is a futuristic blockchain platform designed for fast, secure, and transparent transactions.</p>
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 AVODA. All rights reserved.
+</footer>
+
+<script>
+// Tabs
+function openTab(tabName){
+  const tabs=document.querySelectorAll('.tab');
+  tabs.forEach(t=>t.classList.remove('active'));
+  document.getElementById(tabName).classList.add('active');
+
+  const buttons=document.querySelectorAll('.tab-buttons button');
+  buttons.forEach(b=>b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+
+// Fake chart candles dynamic update
+const chart=document.getElementById('fakeChart');
+function createCandles(){
+  chart.innerHTML='';
+  for(let i=0;i<50;i++){
+    let candle=document.createElement('div');
+    candle.classList.add('candle');
+    candle.style.height=Math.floor(Math.random()*150+50)+'px';
+    candle.style.left=(i*6)+'px';
+    chart.appendChild(candle);
+  }
+}
+createCandles();
+setInterval(createCandles,2000);
+
+// Particles
+for(let i=0;i<50;i++){
+  let p=document.createElement('div');
+  p.classList.add('particle');
+  p.style.left=Math.random()*window.innerWidth+'px';
+  p.style.top=Math.random()*window.innerHeight+'px';
+  p.style.width=Math.random()*6+2+'px';
+  p.style.height=p.style.width;
+  p.style.animationDuration=(5+Math.random()*10)+'s';
+  document.getElementById('particles').appendChild(p);
+}
+
+// Ticker auto-loop
+const ticker=document.getElementById('tickerContent');
+setInterval(()=>{ticker.appendChild(ticker.firstChild.cloneNode(true)); ticker.removeChild(ticker.firstChild);},10000);
+
+</script>
+</body>
+</html>  50% {transform: translateY(-50px);}
   100% {transform: translateY(0px);}
 }
 
