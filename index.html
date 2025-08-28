@@ -446,6 +446,93 @@ document.querySelectorAll('nav a').forEach(a => {
   });
 });
 </script>
+
+<script>
+// --- Reuse existing balances and staked ---
+let balances = { AVD: 500, BTC: 0.05, ETH: 1 };
+let staked = { AVD: 200, rewards: 0 };
+
+// --- Real-time rewards accumulation ---
+const rewardRate = 0.01; // AVD per 3 seconds per staked AVD
+function accumulateRewards() {
+  staked.rewards += staked.AVD * rewardRate;
+  updatePortfolio();
+}
+setInterval(accumulateRewards, 3000);
+
+// --- Update portfolio and staking display ---
+function updatePortfolio() {
+  const prices = { AVD: 0.5, BTC: 27000, ETH: 1800 };
+  document.getElementById('balanceAVD').innerText = balances.AVD.toFixed(2) + " AVD";
+  document.getElementById('balanceBTC').innerText = balances.BTC.toFixed(4) + " BTC";
+  document.getElementById('balanceETH').innerText = balances.ETH.toFixed(2) + " ETH";
+  document.getElementById('stakedAVD').innerText = staked.AVD.toFixed(2) + " AVD";
+  document.getElementById('stakingRewards').innerText = staked.rewards.toFixed(2) + " AVD";
+
+  const totalUSD = balances.AVD*prices.AVD + balances.BTC*prices.BTC + balances.ETH*prices.ETH;
+  document.getElementById('totalUSD').innerText = "$" + totalUSD.toFixed(2);
+}
+updatePortfolio();
+
+// --- Dummy transactions table ---
+let transactions = [
+  { type: 'Swap', token: 'AVD', amount: 100, time: '12:00 PM', status: 'Completed', reward: 0 },
+  { type: 'Deposit', token: 'BTC', amount: 0.01, time: '1:30 PM', status: 'Pending', reward: 0 },
+  { type: 'Withdraw', token: 'ETH', amount: 0.5, time: '2:15 PM', status: 'Completed', reward: 0 },
+  { type: 'Swap', token: 'AVD', amount: 50, time: '3:00 PM', status: 'Completed', reward: 0 }
+];
+
+// --- Update transactions table ---
+function updateTransactions() {
+  const tbody = document.getElementById('txBody');
+  tbody.innerHTML = '';
+  transactions.forEach(tx => {
+    const row = `<tr>
+      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.type}</td>
+      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.token}</td>
+      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.amount}</td>
+      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.time}</td>
+      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.status} ${tx.reward > 0 ? '(+'+tx.reward.toFixed(2)+' AVD reward)' : ''}</td>
+    </tr>`;
+    tbody.innerHTML += row;
+  });
+}
+updateTransactions();
+
+// --- Claim rewards button ---
+function claimRewards() {
+  alert(`Claimed ${staked.rewards.toFixed(2)} AVD rewards!`);
+  balances.AVD += staked.rewards; // add to main balance
+  staked.rewards = 0;
+  updatePortfolio();
+}
+
+// --- Action-linked rewards for Swap/Deposit/Withdraw ---
+function addTransaction(type, token, amount) {
+  const rewardBonus = 0.1 * amount; // 10% of amount as reward bonus
+  if(type === 'Swap' || type === 'Deposit' || type === 'Withdraw') {
+    staked.rewards += rewardBonus;
+  }
+
+  const now = new Date();
+  const timeStr = now.getHours() + ':' + now.getMinutes().toString().padStart(2,'0');
+  transactions.unshift({ type, token, amount, time: timeStr, status:'Completed', reward: rewardBonus });
+  updateTransactions();
+  updatePortfolio();
+}
+
+// --- Hook action-linked rewards to buttons ---
+document.querySelectorAll('.trade-box button').forEach(btn => {
+  const actionType = btn.parentElement.querySelector('h4').innerText;
+  btn.addEventListener('click', () => {
+    const token = btn.parentElement.querySelector('select').value;
+    const amount = parseFloat(btn.parentElement.querySelector('input').value) || 0;
+    if(amount > 0) addTransaction(actionType, token, amount);
+  });
+});
+</script>
+
+
   
 <!-- Footer -->
 <footer>
