@@ -343,6 +343,109 @@ function swapTokens() {
   resultBox.textContent = `✅ Swapped ${amount} ${fromToken} for ~${swappedAmount} ${toToken}`;
 }
 </script>
+
+<!-- Portfolio, Transactions & Staking Section -->
+<section class="dashboard" id="portfolioSection">
+  <div class="card" id="portfolioCard">
+    <h3>Portfolio</h3>
+    <p>Track your token balances and total USD value.</p>
+    <div class="portfolio-item"><span>AVD:</span> <span id="balanceAVD">0.00</span></div>
+    <div class="portfolio-item"><span>BTC:</span> <span id="balanceBTC">0.00</span></div>
+    <div class="portfolio-item"><span>ETH:</span> <span id="balanceETH">0.00</span></div>
+    <div class="portfolio-item"><strong>Total USD:</strong> <span id="totalUSD">0.00</span></div>
+  </div>
+
+  <div class="card" id="transactionsCard" style="margin-top:20px;">
+    <h3>Transaction History</h3>
+    <p>View your latest trades and wallet activity.</p>
+    <table style="width:100%; margin-top:10px; border-collapse:collapse; text-align:center;">
+      <thead>
+        <tr>
+          <th style="padding:8px; border-bottom:1px solid #0ff;">Type</th>
+          <th style="padding:8px; border-bottom:1px solid #0ff;">Token</th>
+          <th style="padding:8px; border-bottom:1px solid #0ff;">Amount</th>
+          <th style="padding:8px; border-bottom:1px solid #0ff;">Time</th>
+          <th style="padding:8px; border-bottom:1px solid #0ff;">Status</th>
+        </tr>
+      </thead>
+      <tbody id="txBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card" id="stakingCardSection" style="margin-top:20px;">
+    <h3>Staking Tracker</h3>
+    <p>Monitor your staked tokens and earned rewards.</p>
+    <div class="portfolio-item"><span>Staked AVD:</span> <span id="stakedAVD">0.00</span></div>
+    <div class="portfolio-item"><span>Rewards:</span> <span id="stakingRewards">0.00</span></div>
+    <button class="btn" onclick="claimRewards()">Claim Rewards</button>
+  </div>
+</section>
+
+<script>
+// Dummy portfolio balances
+let balances = { AVD: 500, BTC: 0.05, ETH: 1 };
+let staked = { AVD: 200, rewards: 5 };
+
+// Update portfolio values
+function updatePortfolio() {
+  const prices = { AVD: 0.5, BTC: 27000, ETH: 1800 };
+  document.getElementById('balanceAVD').innerText = balances.AVD.toFixed(2) + " AVD";
+  document.getElementById('balanceBTC').innerText = balances.BTC.toFixed(4) + " BTC";
+  document.getElementById('balanceETH').innerText = balances.ETH.toFixed(2) + " ETH";
+  const totalUSD = balances.AVD*prices.AVD + balances.BTC*prices.BTC + balances.ETH*prices.ETH;
+  document.getElementById('totalUSD').innerText = "$" + totalUSD.toFixed(2);
+  document.getElementById('stakedAVD').innerText = staked.AVD.toFixed(2) + " AVD";
+  document.getElementById('stakingRewards').innerText = staked.rewards.toFixed(2) + " AVD";
+}
+setInterval(updatePortfolio, 3000);
+updatePortfolio();
+
+// Dummy transactions
+let transactions = [
+  { type: 'Swap', token: 'AVD', amount: 100, time: '12:00 PM', status: 'Completed' },
+  { type: 'Deposit', token: 'BTC', amount: 0.01, time: '1:30 PM', status: 'Pending' },
+  { type: 'Withdraw', token: 'ETH', amount: 0.5, time: '2:15 PM', status: 'Completed' },
+  { type: 'Swap', token: 'AVD', amount: 50, time: '3:00 PM', status: 'Completed' }
+];
+
+// Update transactions table
+function updateTransactions() {
+  const tbody = document.getElementById('txBody');
+  tbody.innerHTML = '';
+  transactions.forEach(tx => {
+    const row = `<tr>
+      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.type}</td>
+      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.token}</td>
+      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.amount}</td>
+      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.time}</td>
+      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.status}</td>
+    </tr>`;
+    tbody.innerHTML += row;
+  });
+}
+updateTransactions();
+
+// Claim rewards placeholder
+function claimRewards() {
+  alert(`Claimed ${staked.rewards.toFixed(2)} AVD rewards!`);
+  staked.rewards = 0;
+  updatePortfolio();
+}
+
+// Navigation buttons scroll to sections
+document.querySelectorAll('nav a').forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = this.innerText.toLowerCase();
+    if(target === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
+    else if(target === 'wallet') openWallet();
+    else if(target === 'trade') document.getElementById('tradePanel').scrollIntoView({behavior:'smooth'});
+    else if(target === 'staking') document.getElementById('stakingCardSection').scrollIntoView({behavior:'smooth'});
+    else if(target === 'news') document.getElementById('newsCard').scrollIntoView({behavior:'smooth'});
+    else if(target === 'settings') alert('Settings placeholder');
+  });
+});
+</script>
   
 <!-- Footer -->
 <footer>
