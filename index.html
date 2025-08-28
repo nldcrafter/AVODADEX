@@ -122,6 +122,60 @@ footer a{color:#0ff;text-decoration:none;}
   </nav>
 </header>
 
+<!-- Sign Up / Sign In Modal -->
+<div id="authModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:2000;">
+  <div style="background:#161b22;padding:30px;border-radius:20px;min-width:300px;text-align:center;box-shadow:0 0 25px #0ff;">
+    <h2 id="authTitle">Sign In</h2>
+    <input type="text" id="username" placeholder="Username" style="width:80%;padding:10px;margin:10px 0;border-radius:10px;border:none;">
+    <input type="password" id="password" placeholder="Password" style="width:80%;padding:10px;margin:10px 0;border-radius:10px;border:none;">
+    <div style="margin-top:15px;">
+      <button onclick="signIn()" id="signInBtn" style="padding:10px 20px;border-radius:12px;border:none;background:#0ff;color:#000;font-weight:bold;cursor:pointer;">Sign In</button>
+      <button onclick="toggleAuth()" style="padding:10px 20px;border-radius:12px;border:none;background:#ff09ff;color:#fff;font-weight:bold;cursor:pointer;">Switch</button>
+    </div>
+    <p id="authMsg" style="margin-top:10px;color:#ff0;"></p>
+  </div>
+</div>
+
+<script>
+// Toggle between Sign In and Sign Up
+let isSignIn = true;
+function toggleAuth() {
+  isSignIn = !isSignIn;
+  document.getElementById('authTitle').innerText = isSignIn ? 'Sign In' : 'Sign Up';
+  document.getElementById('signInBtn').innerText = isSignIn ? 'Sign In' : 'Sign Up';
+  document.getElementById('authMsg').innerText = '';
+}
+
+// Sign Up or Sign In
+function signIn() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  if(!username || !password){document.getElementById('authMsg').innerText='Enter both fields'; return;}
+
+  if(isSignIn){
+    // Sign In
+    const stored = JSON.parse(localStorage.getItem(username));
+    if(stored && stored.password === password){
+      document.getElementById('authModal').style.display='none';
+      alert('Welcome back, ' + username + '!');
+      // Here you can show dashboard or other features
+    } else {
+      document.getElementById('authMsg').innerText='Invalid credentials';
+    }
+  } else {
+    // Sign Up
+    if(localStorage.getItem(username)){
+      document.getElementById('authMsg').innerText='Username already exists';
+      return;
+    }
+    localStorage.setItem(username, JSON.stringify({password}));
+    document.getElementById('authMsg').innerText='Account created! You can sign in now';
+    toggleAuth();
+  }
+}
+</script>
+
+  
 <!-- Hero -->
 <section class="hero" id="heroSection">
   <h2>Future of Finance. Built for Space. Powered by AVODA.</h2>
