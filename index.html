@@ -176,21 +176,54 @@ function updatePriceTracker() {
       SOL: 22,
       AVD: 0.50
     }[coin];
+<!-- Dynamic Token Spotlight -->
+<section class="price-tracker" id="priceTracker">
+  <div class="price-item" data-coin="BTC"><h4>BTC</h4><p class="price">$27,000</p><p class="change">+0.0%</p></div>
+  <div class="price-item" data-coin="ETH"><h4>ETH</h4><p class="price">$1,800</p><p class="change">+0.0%</p></div>
+  <div class="price-item" data-coin="BNB"><h4>BNB</h4><p class="price">$320</p><p class="change">+0.0%</p></div>
+  <div class="price-item" data-coin="XRP"><h4>XRP</h4><p class="price">$0.50</p><p class="change">+0.0%</p></div>
+  <div class="price-item" data-coin="SOL"><h4>SOL</h4><p class="price">$22</p><p class="change">+0.0%</p></div>
+  <div class="price-item" data-coin="AVD"><h4>AVD</h4><p class="price">$0.50</p><p class="change">+0.0%</p></div>
+</section>
 
-    // Random price fluctuation
-    const price = (basePrice + (Math.random() - 0.5) * basePrice * 0.02).toFixed(2);
-    item.querySelector('.price').innerText = `$${price}`;
+<script>
+// Dynamic price and 24h change simulation
+function updateTokenSpotlight() {
+  const coins = {
+    BTC: { price: 27000, change: 0 },
+    ETH: { price: 1800, change: 0 },
+    BNB: { price: 320, change: 0 },
+    XRP: { price: 0.50, change: 0 },
+    SOL: { price: 22, change: 0 },
+    AVD: { price: 0.50, change: 0 }
+  };
 
-    // Random 24h change
-    const changePercent = (Math.random() * 4 - 2).toFixed(2); // -2% to +2%
-    const arrow = changePercent >= 0 ? '▲' : '▼';
-    item.querySelector('.change').innerText = `${changePercent}% ${arrow}`;
-    item.querySelector('.change').style.color = changePercent >= 0 ? '#0f0' : '#f00';
+  document.querySelectorAll('.price-item').forEach(el => {
+    const coin = el.dataset.coin;
+    // Random price movement
+    const move = (Math.random() - 0.5) * 100; // random for demo
+    coins[coin].price = Math.max(coins[coin].price + move, 0.01);
+    coins[coin].change = ((Math.random() - 0.5) * 10).toFixed(2); // simulate % change
+
+    const priceEl = el.querySelector('.price');
+    const changeEl = el.querySelector('.change');
+
+    priceEl.innerText = '$' + coins[coin].price.toFixed(2);
+
+    // Up/down arrow and color
+    if(coins[coin].change >= 0){
+      changeEl.innerHTML = `&#9650; ${coins[coin].change}%`;
+      changeEl.style.color = '#0f0';
+    } else {
+      changeEl.innerHTML = `&#9660; ${coins[coin].change}%`;
+      changeEl.style.color = '#f00';
+    }
   });
 }
-setInterval(updatePriceTracker, 3000); // every 3 seconds
-updatePriceTracker();
-  </script>
+
+setInterval(updateTokenSpotlight, 3000);
+updateTokenSpotlight();
+</script>
 
 <!-- Dashboard Cards -->
 <section class="dashboard">
