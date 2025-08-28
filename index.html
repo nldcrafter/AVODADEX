@@ -672,7 +672,41 @@ document.querySelectorAll('.trade-box button').forEach(btn => {
 });
 </script>
 
+<!-- Live News Section -->
+<section class="dashboard" id="newsSection">
+  <div class="card" id="newsCard">
+    <h3>Crypto News</h3>
+    <p>Latest blockchain and crypto updates:</p>
+    <ul id="newsList" style="margin-top:10px; list-style:none; padding-left:0;"></ul>
+  </div>
+</section>
 
+<script>
+// Example live news headlines
+const newsHeadlines = [
+  "AVODA token hits new ATH!",
+  "Ethereum network upgrade successful.",
+  "Bitcoin trading volume surges 12% in 24h.",
+  "New DeFi project launches on AVODA DEX.",
+  "Global crypto market cap reaches $2T."
+];
+
+// Function to rotate news every 5 seconds
+let newsIndex = 0;
+function updateNews() {
+  const newsList = document.getElementById('newsList');
+  newsList.innerHTML = '';
+  const headline = document.createElement('li');
+  headline.innerText = newsHeadlines[newsIndex];
+  headline.style.padding = "5px 0";
+  newsList.appendChild(headline);
+  newsIndex = (newsIndex + 1) % newsHeadlines.length;
+}
+
+// Start rotation
+updateNews();
+setInterval(updateNews, 5000);
+</script>
   
 <!-- Footer -->
 <footer>
