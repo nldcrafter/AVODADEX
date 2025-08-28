@@ -277,6 +277,73 @@ document.querySelectorAll('nav a').forEach(a => {
   </div>
 </section>
 
+  <!-- Swap Section -->
+<section id="swap" class="dashboard" style="padding:40px; max-width:500px; margin:auto;">
+  <div class="card">
+    <h3>Swap Tokens</h3>
+    
+    <!-- From Token -->
+    <div style="margin-bottom:15px;">
+      <label>From</label>
+      <select id="fromToken" style="width:100%; padding:10px; border-radius:10px; background:rgba(255,255,255,0.1); color:#fff; border:none;">
+        <option value="AVD">AVD</option>
+        <option value="USDT">USDT</option>
+        <option value="BTC">BTC</option>
+      </select>
+    </div>
+    
+    <!-- To Token -->
+    <div style="margin-bottom:15px;">
+      <label>To</label>
+      <select id="toToken" style="width:100%; padding:10px; border-radius:10px; background:rgba(255,255,255,0.1); color:#fff; border:none;">
+        <option value="USDT">USDT</option>
+        <option value="AVD">AVD</option>
+        <option value="BTC">BTC</option>
+      </select>
+    </div>
+    
+    <!-- Amount Input -->
+    <div style="margin-bottom:15px;">
+      <label>Amount</label>
+      <input id="amount" type="number" placeholder="Enter amount" style="width:100%; padding:10px; border-radius:10px; background:rgba(255,255,255,0.1); color:#fff; border:none;">
+    </div>
+    
+    <!-- Swap Button -->
+    <button onclick="swapTokens()" style="width:100%; padding:12px; border:none; border-radius:20px; font-weight:bold; background:#0ff; color:#000; cursor:pointer; transition:0.3s; box-shadow:0 0 20px #0ff;">
+      Swap
+    </button>
+    
+    <!-- Result -->
+    <p id="swapResult" style="margin-top:15px; text-align:center;"></p>
+  </div>
+</section>
+
+<script>
+// Swap Logic
+function swapTokens() {
+  const fromToken = document.getElementById('fromToken').value;
+  const toToken = document.getElementById('toToken').value;
+  const amount = parseFloat(document.getElementById('amount').value);
+  const resultBox = document.getElementById('swapResult');
+
+  if (!amount || amount <= 0) {
+    resultBox.textContent = "⚠️ Enter a valid amount!";
+    return;
+  }
+
+  if (fromToken === toToken) {
+    resultBox.textContent = "⚠️ Cannot swap the same token!";
+    return;
+  }
+
+  // Example rate (replace with real API later)
+  const rate = 1.2; // 1 AVD = 1.2 USDT
+  const swappedAmount = (amount * rate).toFixed(4);
+
+  resultBox.textContent = `✅ Swapped ${amount} ${fromToken} for ~${swappedAmount} ${toToken}`;
+}
+</script>
+  
 <!-- Footer -->
 <footer>
   <p>© 2025 AVODA Network. Built for the future. | <a href="#">Privacy Policy</a></p>
