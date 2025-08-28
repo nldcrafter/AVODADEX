@@ -129,15 +129,68 @@ footer a{color:#0ff;text-decoration:none;}
   <button class="btn" onclick="scrollToSection('tradePanel')">Launch Trade</button>
 </section>
 
-<!-- Price Tracker -->
+<!-- Price Tracker with 24h Change -->
 <section class="price-tracker" id="priceTracker">
-  <div class="price-item"><h4>BTC</h4><p>$27,000</p></div>
-  <div class="price-item"><h4>ETH</h4><p>$1,800</p></div>
-  <div class="price-item"><h4>BNB</h4><p>$320</p></div>
-  <div class="price-item"><h4>XRP</h4><p>$0.50</p></div>
-  <div class="price-item"><h4>SOL</h4><p>$22</p></div>
-  <div class="price-item"><h4>AVD</h4><p>$0.50</p></div>
+  <div class="price-item" data-coin="BTC">
+    <h4>BTC</h4>
+    <p class="price">$27,000</p>
+    <p class="change">+0.0% ▲</p>
+  </div>
+  <div class="price-item" data-coin="ETH">
+    <h4>ETH</h4>
+    <p class="price">$1,800</p>
+    <p class="change">+0.0% ▲</p>
+  </div>
+  <div class="price-item" data-coin="BNB">
+    <h4>BNB</h4>
+    <p class="price">$320</p>
+    <p class="change">+0.0% ▲</p>
+  </div>
+  <div class="price-item" data-coin="XRP">
+    <h4>XRP</h4>
+    <p class="price">$0.50</p>
+    <p class="change">+0.0% ▲</p>
+  </div>
+  <div class="price-item" data-coin="SOL">
+    <h4>SOL</h4>
+    <p class="price">$22</p>
+    <p class="change">+0.0% ▲</p>
+  </div>
+  <div class="price-item" data-coin="AVD">
+    <h4>AVD</h4>
+    <p class="price">$0.50</p>
+    <p class="change">+0.0% ▲</p>
+  </div>
 </section>
+
+<script>
+// Dummy price and 24h change updates
+function updatePriceTracker() {
+  document.querySelectorAll('.price-item').forEach(item => {
+    const coin = item.getAttribute('data-coin');
+    let basePrice = {
+      BTC: 27000,
+      ETH: 1800,
+      BNB: 320,
+      XRP: 0.50,
+      SOL: 22,
+      AVD: 0.50
+    }[coin];
+
+    // Random price fluctuation
+    const price = (basePrice + (Math.random() - 0.5) * basePrice * 0.02).toFixed(2);
+    item.querySelector('.price').innerText = `$${price}`;
+
+    // Random 24h change
+    const changePercent = (Math.random() * 4 - 2).toFixed(2); // -2% to +2%
+    const arrow = changePercent >= 0 ? '▲' : '▼';
+    item.querySelector('.change').innerText = `${changePercent}% ${arrow}`;
+    item.querySelector('.change').style.color = changePercent >= 0 ? '#0f0' : '#f00';
+  });
+}
+setInterval(updatePriceTracker, 3000); // every 3 seconds
+updatePriceTracker();
+  </script>
 
 <!-- Dashboard Cards -->
 <section class="dashboard">
