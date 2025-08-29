@@ -876,6 +876,43 @@ function updatePrices(){
 setInterval(updatePrices,3000);
 updatePrices();
 </script>
+
+  <!-- Alerts Container -->
+<div id="alertContainer" style="position:fixed; top:20px; right:20px; z-index:2000;"></div>
+
+<script>
+// Function to create alert
+function showAlert(message, type="info") {
+    const alertBox = document.createElement('div');
+    alertBox.innerText = message;
+    alertBox.style.background = type === "error" ? "#ff4c4c" : type === "success" ? "#4cff7f" : "#0ff";
+    alertBox.style.color = "#000";
+    alertBox.style.padding = "10px 15px";
+    alertBox.style.marginTop = "10px";
+    alertBox.style.borderRadius = "12px";
+    alertBox.style.boxShadow = "0 0 15px rgba(0,255,255,0.5)";
+    alertBox.style.fontWeight = "bold";
+    alertBox.style.cursor = "pointer";
+    alertBox.style.transition = "all 0.5s ease";
+    
+    alertBox.onclick = () => alertBox.remove();
+
+    document.getElementById('alertContainer').appendChild(alertBox);
+
+    // Auto remove after 3 seconds
+    setTimeout(()=>{ alertBox.remove(); }, 3000);
+}
+
+// Example Usage
+setInterval(()=>{
+    const price = (0.5 + Math.random()*0.05).toFixed(2); // Example AVD price
+    if(price > 0.53) showAlert("AVD price spiked! $" + price, "success");
+    else if(price < 0.48) showAlert("AVD price dropped! $" + price, "error");
+}, 5000);
+
+// You can call showAlert("message","type") anytime in other parts of your code
+</script>
+
 </body>
       </html>
 
