@@ -849,6 +849,162 @@ function updateNews() {
 updateNews();
 setInterval(updateNews, 5000);
 </script>
+
+<!-- User Profile & Settings Modal -->
+<div id="profileModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeProfile()">&times;</span>
+    <h2>AVODA Profile</h2>
+    <div class="profile-section">
+      <label>Username:</label>
+      <input type="text" id="username" placeholder="Enter username">
+    </div>
+    <div class="profile-section">
+      <label>Email:</label>
+      <input type="email" id="email" placeholder="Enter email">
+    </div>
+    <div class="profile-section">
+      <label>Password:</label>
+      <input type="password" id="password" placeholder="New password">
+    </div>
+    <div class="profile-section">
+      <label>Theme:</label>
+      <select id="themeSelect" onchange="changeTheme(this.value)">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
+    </div>
+    <div class="profile-section">
+      <label>Wallet Linked:</label>
+      <span id="walletStatus">Not linked</span>
+      <button onclick="linkWallet()">Link Wallet</button>
+    </div>
+    <div class="profile-section">
+      <label>Notifications:</label>
+      <input type="checkbox" id="notifyTx" checked> Transaction alerts
+      <input type="checkbox" id="notifyNews"> News updates
+    </div>
+    <button class="btn" onclick="saveProfile()">Save Changes</button>
+  </div>
+</div>
+
+<style>
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  justify-content: center; align-items: center;
+}
+.modal-content {
+  background: #0a0f23;
+  padding: 30px;
+  border-radius: 20px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 0 25px #0ff;
+  color: #fff;
+  position: relative;
+}
+.close-modal {
+  position: absolute;
+  top: 15px; right: 20px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #ff09ff;
+}
+.modal-content h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #0ff;
+}
+.profile-section {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+.profile-section label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #0ff;
+}
+.profile-section input, .profile-section select {
+  padding: 8px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.profile-section input:focus, .profile-section select:focus {
+  outline: none;
+  box-shadow: 0 0 10px #ff09ff;
+}
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: #0ff;
+  color: #000;
+  font-weight: bold;
+  border-radius: 30px;
+  cursor: pointer;
+  margin-top: 15px;
+  box-shadow: 0 0 20px #0ff;
+}
+.btn:hover {
+  background: #ff09ff;
+  color: #fff;
+  box-shadow: 0 0 25px #ff09ff;
+}
+</style>
+
+<script>
+// Open & close profile modal
+function openProfile() {
+  document.getElementById('profileModal').style.display = 'flex';
+}
+function closeProfile() {
+  document.getElementById('profileModal').style.display = 'none';
+}
+
+// Save profile (placeholder for real backend)
+function saveProfile() {
+  const username = document.getElementById('username').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const notifyTx = document.getElementById('notifyTx').checked;
+  const notifyNews = document.getElementById('notifyNews').checked;
+
+  alert(`Saved!\nUsername: ${username}\nEmail: ${email}\nNotifications: TX-${notifyTx}, News-${notifyNews}`);
+  closeProfile();
+}
+
+// Theme switcher
+function changeTheme(value) {
+  if(value === 'dark') {
+    document.body.style.background = 'linear-gradient(135deg,#000014,#030B2A,#021F3E)';
+    document.body.style.color = '#fff';
+  } else {
+    document.body.style.background = '#f4f4f4';
+    document.body.style.color = '#000';
+  }
+}
+
+// Wallet link placeholder
+function linkWallet() {
+  document.getElementById('walletStatus').innerText = 'Wallet Linked';
+  alert('Wallet successfully linked (placeholder)');
+}
+
+// Add profile button to nav
+const profileNav = document.createElement('a');
+profileNav.href = '#';
+profileNav.innerText = 'Profile';
+profileNav.onclick = (e) => { e.preventDefault(); openProfile(); };
+document.querySelector('nav').appendChild(profileNav);
+</script>
   
 <!-- Footer -->
 <footer>
