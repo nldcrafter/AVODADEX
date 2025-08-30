@@ -559,6 +559,119 @@ document.querySelectorAll('nav a').forEach(a => {
   </div>
 </section>
 
+<!-- Advanced Swap Section -->
+<section class="dashboard" id="advancedSwapSection" style="margin-top:20px;">
+  <div class="card" id="advancedSwapCard">
+    <h3>Advanced Swap</h3>
+    <div class="swap-box">
+      <div>
+        <label>From:</label>
+        <select id="fromToken">
+          <option value="AVD">AVD</option>
+          <option value="BTC">BTC</option>
+          <option value="ETH">ETH</option>
+        </select>
+        <input type="number" id="fromAmount" placeholder="0.00">
+        <button onclick="setMax()">Max</button>
+      </div>
+      <div>
+        <label>To:</label>
+        <select id="toToken">
+          <option value="BTC">BTC</option>
+          <option value="ETH">ETH</option>
+          <option value="AVD">AVD</option>
+        </select>
+        <input type="number" id="toAmount" placeholder="0.00" disabled>
+      </div>
+      <div>
+        <label>Slippage (%)</label>
+        <input type="number" id="slippage" value="0.5" step="0.1">
+      </div>
+      <button class="btn" onclick="performSwap()">Swap</button>
+    </div>
+  </div>
+</section>
+
+<script>
+// Dummy balances
+let balances = { AVD: 500, BTC: 0.05, ETH: 1 };
+// Dummy prices
+const prices = { AVD: 0.5, BTC: 27000, ETH: 1800 };
+
+// Max button
+function setMax() {
+  const fromToken = document.getElementById('fromToken').value;
+  document.getElementById('fromAmount').value = balances[fromToken];
+  updateSwapOutput();
+}
+
+// Update swap output dynamically
+function updateSwapOutput() {
+  const fromToken = document.getElementById('fromToken').value;
+  const toToken = document.getElementById('toToken').value;
+  const fromAmount = parseFloat(document.getElementById('fromAmount').value) || 0;
+  const slippage = parseFloat(document.getElementById('slippage').value) || 0;
+
+  if(fromToken === toToken) {
+    document.getElementById('toAmount').value = fromAmount;
+    return;
+  }
+
+  // Convert from -> USD -> to
+  const usdValue = fromAmount * prices[fromToken];
+  let toAmount = usdValue / prices[toToken];
+
+  // Apply slippage
+  toAmount = toAmount * (1 - slippage / 100);
+  document.getElementById('toAmount').value = toAmount.toFixed(6);
+}
+
+// Perform swap
+function performSwap() {
+  const fromToken = document.getElementById('fromToken').value;
+  const toToken = document.getElementById('toToken').value;
+  const fromAmount = parseFloat(document.getElementById('fromAmount').value) || 0;
+  const toAmount = parseFloat(document.getElementById('toAmount').value) || 0;
+
+  if(fromAmount > balances[fromToken]) {
+    alert("Insufficient balance!");
+    return;
+  }
+  if(fromToken === toToken) {
+    alert("Select different tokens!");
+    return;
+  }
+
+  balances[fromToken] -= fromAmount;
+  balances[toToken] += toAmount;
+
+  alert(`Swapped ${fromAmount} ${fromToken} → ${toAmount.toFixed(6)} ${toToken}`);
+  updatePortfolio();
+  updateSwapOutput();
+}
+
+// Update output on input change
+document.getElementById('fromAmount').addEventListener('input', updateSwapOutput);
+document.getElementById('fromToken').addEventListener('change', updateSwapOutput);
+document.getElementById('toToken').addEventListener('change', updateSwapOutput);
+
+// Make sure updatePortfolio exists from your dashboard code
+function updatePortfolio() {
+  document.getElementById('balanceAVD').innerText = balances.AVD.toFixed(2) + " AVD";
+  document.getElementById('balanceBTC').innerText = balances.BTC.toFixed(4) + " BTC";
+  document.getElementById('balanceETH').innerText = balances.ETH.toFixed(2) + " ETH";
+  const totalUSD = balances.AVD*prices.AVD + balances.BTC*prices.BTC + balances.ETH*prices.ETH;
+  document.getElementById('totalUSD').innerText = "$" + totalUSD.toFixed(2);
+}
+</script>
+
+<style>
+.swap-box { display:flex; flex-direction:column; gap:10px; }
+.swap-box div { display:flex; gap:10px; align-items:center; }
+.swap-box input, .swap-box select { padding:5px; flex:1; }
+.swap-box button { padding:5px 10px; background:#0ff; border:none; color:#000; cursor:pointer; }
+</style>
+  
   <!-- Swap Section -->
 <section id="swap" class="dashboard" style="padding:40px; max-width:500px; margin:auto;">
   <div class="card">
