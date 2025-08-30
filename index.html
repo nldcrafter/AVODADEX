@@ -1007,6 +1007,87 @@ document.querySelector('nav').appendChild(profileNav);
 </script>
 
 
+
+  <!-- Animated Price Chart -->
+<section class="dashboard" id="priceChartSection" style="margin-top:20px;">
+  <div class="card" id="priceChartCard">
+    <h3>AVD Price Chart (24h)</h3>
+    <canvas id="priceChart" style="width:100%; height:300px;"></canvas>
+  </div>
+</section>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Dummy real-time AVD price data
+let priceData = [];
+let timeLabels = [];
+const maxPoints = 24; // 24 data points (1 per hour)
+
+function addPricePoint() {
+  const now = new Date();
+  const hourLabel = now.getHours() + ":00";
+
+  // Random dummy price around 0.5 USD (replace with real API later)
+  const lastPrice = priceData.length > 0 ? priceData[priceData.length - 1] : 0.5;
+  const newPrice = (lastPrice + (Math.random() - 0.5) * 0.02).toFixed(4);
+
+  if(priceData.length >= maxPoints) {
+    priceData.shift();
+    timeLabels.shift();
+  }
+
+  priceData.push(newPrice);
+  timeLabels.push(hourLabel);
+
+  myChart.update();
+}
+
+// Create Chart.js line chart
+const ctx = document.getElementById('priceChart').getContext('2d');
+const myChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: timeLabels,
+    datasets: [{
+      label: 'AVD Price ($)',
+      data: priceData,
+      borderColor: '#0ff',
+      backgroundColor: 'rgba(0,255,255,0.2)',
+      tension: 0.3,
+      pointRadius: 3,
+      pointBackgroundColor: '#0ff'
+    }]
+  },
+  options: {
+    responsive: true,
+    animation: {
+      duration: 800
+    },
+    scales: {
+      x: {
+        grid: { color: '#222' },
+        ticks: { color: '#0ff' }
+      },
+      y: {
+        grid: { color: '#222' },
+        ticks: { color: '#0ff' }
+      }
+    },
+    plugins: {
+      legend: { labels: { color: '#0ff' } }
+    }
+  }
+});
+
+// Update chart every 3 seconds
+setInterval(addPricePoint, 3000);
+
+// Initialize with 5 points
+for(let i=0; i<5; i++) addPricePoint();
+</script>
+
 <!-- Animated Price Line Chart with Up/Down and 24h Change -->
 <section id="priceChartSection" style="margin:20px 40px; background:#0a0f23; padding:20px; border-radius:15px; box-shadow:0 0 20px #0ff;">
   <h3 style="color:#0ff; margin-bottom:15px;">AVD Price Chart</h3>
