@@ -1201,73 +1201,7 @@ setInterval(addPricePoint, 3000);
 for(let i=0; i<5; i++) addPricePoint();
 </script>
 
-<!-- Animated Price Line Chart with Up/Down and 24h Change -->
-<section id="priceChartSection" style="margin:20px 40px; background:#0a0f23; padding:20px; border-radius:15px; box-shadow:0 0 20px #0ff;">
-  <h3 style="color:#0ff; margin-bottom:15px;">AVD Price Chart</h3>
-  <canvas id="priceLineChart" height="150"></canvas>
-  <div id="priceChange" style="margin-top:10px; color:#0ff; font-weight:bold; font-size:16px;">24h Change: <span id="changeArrow">↑</span> <span id="changePercent">0.00%</span></div>
-</section>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-const ctx = document.getElementById('priceLineChart').getContext('2d');
-const priceData = [0.50,0.51,0.52,0.51,0.53,0.54,0.52];
-const labelsData = ["12:00","12:10","12:20","12:30","12:40","12:50","13:00"];
-
-const priceChart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: labelsData,
-    datasets: [{
-      label: 'AVD Price ($)',
-      data: priceData,
-      borderColor: '#0ff',
-      backgroundColor: 'rgba(0,255,255,0.2)',
-      tension: 0.4,
-      pointRadius: 4,
-      pointBackgroundColor: '#ff09ff'
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: 'rgba(0,255,255,0.1)' }, ticks: { color: '#0ff' } },
-      y: { grid: { color: 'rgba(0,255,255,0.1)' }, ticks: { color: '#0ff' } }
-    }
-  }
-});
-
-// 24h Change simulation
-function updatePrice() {
-  const lastPrice = priceChart.data.datasets[0].data[priceChart.data.datasets[0].data.length - 1];
-  const nextPrice = parseFloat((lastPrice + (Math.random()-0.5)*0.02).toFixed(2));
-  const lastLabel = new Date().toLocaleTimeString().slice(0,5);
-
-  priceChart.data.labels.push(lastLabel);
-  priceChart.data.datasets[0].data.push(nextPrice);
-
-  // Keep last 20 points
-  if(priceChart.data.labels.length > 20){
-    priceChart.data.labels.shift();
-    priceChart.data.datasets[0].data.shift();
-  }
-  priceChart.update();
-
-  // Update 24h change
-  const change = ((nextPrice - priceChart.data.datasets[0].data[0])/priceChart.data.datasets[0].data[0])*100;
-  const arrow = change >= 0 ? '↑' : '↓';
-  const color = change >= 0 ? '#0f0' : '#f00';
-  const changeElem = document.getElementById('changePercent');
-  const arrowElem = document.getElementById('changeArrow');
-  changeElem.innerText = Math.abs(change).toFixed(2) + '%';
-  arrowElem.innerText = arrow;
-  arrowElem.style.color = color;
-  changeElem.style.color = color;
-}
-
-setInterval(updatePrice, 3000);
-</script>
   
 <!-- Footer -->
 <footer>
