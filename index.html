@@ -769,6 +769,142 @@ function removeLiquidity() {
 // Initial Load
 updatePool();
 </script>
+
+
+<!-- Market Prices & Advanced Orders -->
+<section class="dashboard" id="marketOrdersSection" style="margin-top:20px;">
+  <div class="card" id="marketOrdersCard">
+    <h3>Market Prices & Advanced Orders</h3>
+    <p>Watch live prices and place simulated orders.</p>
+
+    <!-- Price Bars -->
+    <div class="price-bar">
+      <span>AVD:</span>
+      <div class="bar-bg"><div id="barAVD" class="bar-fill"></div></div>
+      <span id="priceAVD">$0.50</span>
+    </div>
+    <div class="price-bar">
+      <span>BTC:</span>
+      <div class="bar-bg"><div id="barBTC" class="bar-fill"></div></div>
+      <span id="priceBTC">$27,000</span>
+    </div>
+    <div class="price-bar">
+      <span>ETH:</span>
+      <div class="bar-bg"><div id="barETH" class="bar-fill"></div></div>
+      <span id="priceETH">$1,800</span>
+    </div>
+
+    <!-- Advanced Orders -->
+    <div style="margin-top:20px;">
+      <h4>Advanced Orders Simulator</h4>
+      <div>
+        <label>Token:</label>
+        <select id="orderToken">
+          <option value="AVD">AVD</option>
+          <option value="BTC">BTC</option>
+          <option value="ETH">ETH</option>
+        </select>
+      </div>
+      <div>
+        <label>Order Type:</label>
+        <select id="orderType">
+          <option value="limit">Limit</option>
+          <option value="stop">Stop-Loss</option>
+          <option value="take">Take-Profit</option>
+        </select>
+      </div>
+      <div>
+        <label>Target Price:</label>
+        <input type="number" id="orderPrice" placeholder="Enter price">
+      </div>
+      <button class="btn" onclick="placeOrder()">Place Order</button>
+      <h5>Active Orders:</h5>
+      <ul id="activeOrders"></ul>
+    </div>
+  </div>
+</section>
+
+<style>
+.price-bar {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  font-family: Arial, sans-serif;
+}
+.bar-bg {
+  width: 60%;
+  height: 18px;
+  background: #222;
+  margin: 0 10px;
+  border-radius: 9px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #0ff, #0f0);
+  border-radius: 9px;
+  transition: width 0.5s ease;
+}
+#activeOrders li {
+  margin: 5px 0;
+}
+</style>
+
+<script>
+// Simulated market prices
+let marketPrices = { AVD: 0.5, BTC: 27000, ETH: 1800 };
+let orders = [];
+
+// Animate price bars
+function updateMarketBars() {
+  Object.keys(marketPrices).forEach(token => {
+    marketPrices[token] *= 0.98 + Math.random() * 0.04; // +/-2%
+    let widthPercent = Math.min((marketPrices[token]/(token==='BTC'?30000:token==='ETH'?2000:1))*100, 100);
+    document.getElementById('bar' + token).style.width = widthPercent + "%";
+    document.getElementById('price' + token).innerText = "$" + marketPrices[token].toFixed(token==='BTC'?0:2);
+  });
+
+  // Check for orders execution
+  orders.forEach((order, index) => {
+    let currentPrice = marketPrices[order.token];
+    if(order.type === 'limit' && currentPrice === parseFloat(order.price)) {
+      alert(`Limit Order executed: ${order.token} at $${order.price}`);
+      orders.splice(index,1);
+      updateOrdersDisplay();
+    }
+    else if(order.type === 'stop' && currentPrice <= parseFloat(order.price)) {
+      alert(`Stop-Loss triggered: ${order.token} at $${order.price}`);
+      orders.splice(index,1);
+      updateOrdersDisplay();
+    }
+    else if(order.type === 'take' && currentPrice >= parseFloat(order.price)) {
+      alert(`Take-Profit triggered: ${order.token} at $${order.price}`);
+      orders.splice(index,1);
+      updateOrdersDisplay();
+    }
+  });
+}
+setInterval(updateMarketBars, 1000);
+
+// Place order
+function placeOrder() {
+  const token = document.getElementById('orderToken').value;
+  const type = document.getElementById('orderType').value;
+  const price = document.getElementById('orderPrice').value;
+  if(!price) return alert('Enter target price');
+  orders.push({ token, type, price });
+  updateOrdersDisplay();
+}
+
+// Update active orders display
+function updateOrdersDisplay() {
+  const ul = document.getElementById('activeOrders');
+  ul.innerHTML = '';
+  orders.forEach(o => ul.innerHTML += `<li>${o.type} ${o.token} at $${o.price}</li>`);
+}
+</script>
+
   
   <!-- Swap Section -->
 <section id="swap" class="dashboard" style="padding:40px; max-width:500px; margin:auto;">
