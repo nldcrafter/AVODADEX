@@ -1161,6 +1161,64 @@ document.querySelectorAll('.trade-box button').forEach(btn => {
 });
 </script>
 
+<!-- Deposit & Withdraw Panel -->
+<div class="card" id="walletActions" style="margin-top:20px;">
+  <h3>Wallet Actions</h3>
+  <p>Deposit or withdraw your AVD tokens.</p>
+  
+  <!-- Deposit -->
+  <div style="margin-top:10px;">
+    <button class="btn" id="depositBtn">Deposit</button>
+    <div id="depositInfo" style="display:none; margin-top:5px; padding:10px; background:#0ff0; border-radius:10px;">
+      <p><strong>Deposit Address:</strong> <span id="depositAddress">AVODA123XYZABC</span></p>
+      <small>Copy this address to your wallet to deposit.</small>
+      <button class="btn" onclick="copyDeposit()">Copy Address</button>
+    </div>
+  </div>
+
+  <!-- Withdraw -->
+  <div style="margin-top:20px;">
+    <button class="btn" id="withdrawBtn">Withdraw</button>
+    <div id="withdrawInfo" style="display:none; margin-top:5px; padding:10px; background:#f0f; border-radius:10px;">
+      <label>Amount to withdraw:</label>
+      <input type="number" id="withdrawAmount" placeholder="0.00 AVD" style="width:100px; margin-left:10px;">
+      <button class="btn" onclick="confirmWithdraw()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Deposit toggle
+document.getElementById('depositBtn').addEventListener('click', function() {
+  const info = document.getElementById('depositInfo');
+  info.style.display = info.style.display === 'none' ? 'block' : 'none';
+});
+
+// Withdraw toggle
+document.getElementById('withdrawBtn').addEventListener('click', function() {
+  const info = document.getElementById('withdrawInfo');
+  info.style.display = info.style.display === 'none' ? 'block' : 'none';
+});
+
+// Copy deposit address
+function copyDeposit() {
+  const addr = document.getElementById('depositAddress').innerText;
+  navigator.clipboard.writeText(addr);
+  alert('Deposit address copied!');
+}
+
+// Confirm withdraw (dummy, no real money)
+function confirmWithdraw() {
+  const amount = parseFloat(document.getElementById('withdrawAmount').value);
+  if(isNaN(amount) || amount <= 0) {
+    alert('Enter a valid amount!');
+    return;
+  }
+  alert(`Withdrawal of ${amount.toFixed(2)} AVD requested! (Simulation)`);
+  document.getElementById('withdrawAmount').value = '';
+}
+</script>
+  
 <!-- Live News Section -->
 <section class="dashboard" id="newsSection">
   <div class="card" id="newsCard">
