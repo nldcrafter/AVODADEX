@@ -560,80 +560,6 @@ document.querySelectorAll('nav a').forEach(a => {
 </section>
 
 
-<!-- Liquidity Pool Section -->
-<section class="dashboard" id="liquidityPoolSection" style="margin-top:30px;">
-  <div class="card" id="liquidityPoolCard">
-    <h3>Liquidity Pool</h3>
-    <p>Add/Remove liquidity and see pool stats.</p>
-    
-    <div class="portfolio-item">
-      <span>Total Pool Value:</span> <span id="totalPool">$0.00</span>
-    </div>
-    <div class="portfolio-item">
-      <span>Pool APR:</span> <span id="poolAPR">0%</span>
-    </div>
-    <div class="portfolio-item">
-      <span>Volume (24h):</span> <span id="poolVolume">$0.00</span>
-    </div>
-    
-    <div style="margin-top:15px;">
-      <h4>Add Liquidity</h4>
-      <input type="number" id="addAVD" placeholder="AVD Amount">
-      <input type="number" id="addUSDT" placeholder="USDT Amount">
-      <button class="btn" onclick="addLiquidity()">Add</button>
-    </div>
-
-    <div style="margin-top:15px;">
-      <h4>Remove Liquidity</h4>
-      <input type="number" id="removePercent" placeholder="% of Pool">
-      <button class="btn" onclick="removeLiquidity()">Remove</button>
-    </div>
-
-    <div style="margin-top:15px;">
-      <h4>Your Earnings:</h4>
-      <span id="userEarnings">0.00 AVD</span>
-    </div>
-  </div>
-</section>
-
-<script>
-// Dummy pool data
-let pool = { AVD: 10000, USDT: 5000, APR: 12, volume24h: 2500 };
-let userPoolShare = 0; // in %
-
-function updatePoolDashboard() {
-  document.getElementById('totalPool').innerText = `$${(pool.AVD*0.5 + pool.USDT).toFixed(2)}`;
-  document.getElementById('poolAPR').innerText = pool.APR + '%';
-  document.getElementById('poolVolume').innerText = `$${pool.volume24h.toFixed(2)}`;
-  document.getElementById('userEarnings').innerText = (userPoolShare/100*pool.volume24h*pool.APR/100).toFixed(2) + ' AVD';
-}
-
-function addLiquidity() {
-  const avd = parseFloat(document.getElementById('addAVD').value) || 0;
-  const usdt = parseFloat(document.getElementById('addUSDT').value) || 0;
-  pool.AVD += avd;
-  pool.USDT += usdt;
-  userPoolShare += 1; // dummy increment
-  updatePoolDashboard();
-  alert(`Added ${avd} AVD + ${usdt} USDT to the pool!`);
-}
-
-function removeLiquidity() {
-  const percent = parseFloat(document.getElementById('removePercent').value) || 0;
-  const avdRemoved = pool.AVD * (percent/100);
-  const usdtRemoved = pool.USDT * (percent/100);
-  pool.AVD -= avdRemoved;
-  pool.USDT -= usdtRemoved;
-  userPoolShare -= percent/2; // dummy decrement
-  updatePoolDashboard();
-  alert(`Removed ${avdRemoved.toFixed(2)} AVD + ${usdtRemoved.toFixed(2)} USDT from the pool!`);
-}
-
-// auto-update
-setInterval(updatePoolDashboard, 3000);
-updatePoolDashboard();
-</script>
-  
 <!-- Advanced Swap Section -->
 <section class="dashboard" id="advancedSwapSection" style="margin-top:20px;">
   <div class="card" id="advancedSwapCard">
@@ -746,6 +672,103 @@ function updatePortfolio() {
 .swap-box input, .swap-box select { padding:5px; flex:1; }
 .swap-box button { padding:5px 10px; background:#0ff; border:none; color:#000; cursor:pointer; }
 </style>
+
+
+<!-- Liquidity Pool Section -->
+<section class="dashboard" id="liquidityPoolSection" style="margin-top:30px;">
+  <div class="card" id="liquidityPoolCard">
+    <h3>Liquidity Pool</h3>
+    <p>Track pool contributions and your share.</p>
+
+    <div class="pool-item">
+      <span>Total AVD in Pool:</span>
+      <span id="totalAVD">0</span>
+    </div>
+    <div class="pool-item">
+      <span>Total USD in Pool:</span>
+      <span id="totalUSDPool">$0</span>
+    </div>
+
+    <div class="pool-bar-container">
+      <div class="pool-bar-bg">
+        <div class="pool-bar-user" id="userPoolBar"></div>
+      </div>
+      <span>Your Share: <span id="userShare">0%</span></span>
+    </div>
+
+    <div class="pool-actions" style="margin-top:10px;">
+      <button class="btn" onclick="addLiquidity()">Add Liquidity</button>
+      <button class="btn" onclick="removeLiquidity()">Remove Liquidity</button>
+    </div>
+  </div>
+</section>
+
+<style>
+.pool-bar-container {
+  margin-top: 10px;
+  width: 100%;
+}
+.pool-bar-bg {
+  width: 100%;
+  height: 20px;
+  background-color: #222;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.pool-bar-user {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #0ff, #0aa);
+  transition: width 1s ease-in-out;
+}
+.pool-item {
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+}
+.pool-actions .btn {
+  margin-right: 10px;
+}
+</style>
+
+<script>
+// Dummy Pool Data
+let pool = {
+  totalAVD: 1000,
+  totalUSD: 500,
+  userSharePercent: 10
+};
+
+// Update Pool Display
+function updatePool() {
+  document.getElementById('totalAVD').innerText = pool.totalAVD.toFixed(2) + " AVD";
+  document.getElementById('totalUSDPool').innerText = "$" + pool.totalUSD.toFixed(2);
+  document.getElementById('userShare').innerText = pool.userSharePercent.toFixed(1) + "%";
+  document.getElementById('userPoolBar').style.width = pool.userSharePercent + "%";
+}
+
+// Add/Remove Liquidity (Dummy)
+function addLiquidity() {
+  pool.userSharePercent += 5;
+  if(pool.userSharePercent > 100) pool.userSharePercent = 100;
+  pool.totalAVD += 50;
+  pool.totalUSD += 25;
+  updatePool();
+  alert("Added liquidity! Your share increased.");
+}
+
+function removeLiquidity() {
+  pool.userSharePercent -= 5;
+  if(pool.userSharePercent < 0) pool.userSharePercent = 0;
+  pool.totalAVD -= 50;
+  pool.totalUSD -= 25;
+  updatePool();
+  alert("Removed liquidity! Your share decreased.");
+}
+
+// Initial Load
+updatePool();
+</script>
   
   <!-- Swap Section -->
 <section id="swap" class="dashboard" style="padding:40px; max-width:500px; margin:auto;">
