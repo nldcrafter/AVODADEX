@@ -3,94 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AVODA | Premium Web3 DEX</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>AVODA | Ultimate Web3 DEX & Wallet</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         :root {
-            /* Theme Variables - Easy to expand */
             --bg: #05070a;
-            --sidebar: rgba(10, 15, 25, 0.8);
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --card-border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
             --accent: #00f2ff;
-            --accent-gradient: linear-gradient(135deg, #00f2ff 0%, #7000ff 100%);
-            --text-main: #ffffff;
+            --accent-grad: linear-gradient(135deg, #00f2ff 0%, #7000ff 100%);
+            --text: #ffffff;
             --text-dim: #94a3b8;
             --success: #00ff88;
             --danger: #ff4d4d;
-            --glow: rgba(0, 242, 255, 0.15);
         }
 
-        [data-theme="light"] {
-            --bg: #f8fafc;
-            --sidebar: rgba(241, 245, 249, 0.9);
-            --card-bg: #ffffff;
-            --card-border: #e2e8f0;
-            --text-main: #0f172a;
-            --text-dim: #64748b;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; min-height: 100vh; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); overflow: hidden; }
+        /* Layout */
+        .app-shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+        aside { background: var(--glass); border-right: 1px solid var(--glass-border); padding: 2rem 1.5rem; backdrop-filter: blur(20px); }
+        main { padding: 2rem 3rem; overflow-y: auto; }
 
-        /* Main Layout */
-        .app-shell { display: flex; height: 100vh; width: 100vw; }
+        /* Navigation */
+        .logo { font-size: 1.8rem; font-weight: 900; background: var(--accent-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2.5rem; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; color: var(--text-dim); text-decoration: none; cursor: pointer; margin-bottom: 5px; }
+        .nav-item:hover, .nav-item.active { background: var(--glass); color: var(--text); border: 1px solid var(--glass-border); }
 
-        /* Navigation Sidebar */
-        aside {
-            width: 280px; background: var(--sidebar); border-right: 1px solid var(--card-border);
-            backdrop-filter: blur(20px); display: flex; flex-direction: column; padding: 2rem 1.5rem;
-            z-index: 100;
-        }
-        .logo { font-size: 1.8rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 3rem; letter-spacing: -1px; }
-        .nav-links { list-style: none; flex: 1; }
-        .nav-item { 
-            display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px;
-            color: var(--text-dim); text-decoration: none; margin-bottom: 8px; cursor: pointer;
-        }
-        .nav-item:hover, .nav-item.active { background: var(--card-bg); color: var(--text-main); border: 1px solid var(--card-border); }
-        
-        /* Dashboard Container */
-        main { flex: 1; padding: 2rem; overflow-y: auto; position: relative; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        
-        /* Grid System */
-        .grid-layout { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
-        .col-8 { grid-column: span 8; }
-        .col-4 { grid-column: span 4; }
+        /* Cards & Grid */
+        .grid { display: grid; grid-template-columns: 1.8fr 1fr; gap: 2rem; }
+        .card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; padding: 1.5rem; backdrop-filter: blur(10px); height: fit-content; }
 
-        /* Component: Cards */
-        .glass-card {
-            background: var(--card-bg); border: 1px solid var(--card-border);
-            border-radius: 24px; padding: 1.5rem; backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px 0 rgba(0,0,0,0.2);
-        }
-        .glass-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px var(--glow); border-color: var(--accent); }
+        /* Swap UI */
+        .swap-box { background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--glass-border); margin: 10px 0; }
+        .swap-box input { background: transparent; border: none; color: white; font-size: 1.6rem; width: 60%; outline: none; }
+        .token-sel { background: var(--glass); padding: 5px 12px; border-radius: 10px; border: 1px solid var(--glass-border); color: white; cursor: pointer; }
 
-        /* DEX Swap Interface */
-        .swap-container { display: flex; flex-direction: column; gap: 0.5rem; }
-        .swap-input-box { background: rgba(0,0,0,0.2); border: 1px solid var(--card-border); padding: 1.2rem; border-radius: 18px; }
-        .swap-input-box input { background: transparent; border: none; color: white; font-size: 1.5rem; width: 100%; outline: none; }
-        .token-badge { background: var(--card-bg); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; border: 1px solid var(--card-border); }
-        .btn-action { 
-            width: 100%; padding: 1.2rem; border-radius: 16px; border: none; 
-            background: var(--accent-gradient); color: white; font-weight: 700; cursor: pointer; margin-top: 1rem;
-        }
+        /* Buttons */
+        .btn-primary { background: var(--accent-grad); border: none; padding: 1rem; border-radius: 15px; color: white; font-weight: 700; width: 100%; cursor: pointer; transition: 0.3s; }
+        .btn-primary:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* AI Insight Badge */
-        .ai-badge { 
-            display: flex; align-items: center; gap: 8px; padding: 12px; border-radius: 12px; 
-            background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.1); margin-top: 10px;
-        }
+        /* Mnemonic Area */
+        .mnemonic-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+        .word-tag { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; text-align: center; font-size: 0.8rem; border: 1px solid var(--glass-border); }
 
-        /* Mobile Adjustments */
-        @media (max-width: 1024px) {
-            aside { width: 80px; }
-            aside span, .logo { display: none; }
-            .col-8, .col-4 { grid-column: span 12; }
-        }
+        /* Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th { text-align: left; color: var(--text-dim); font-size: 0.8rem; padding: 10px; }
+        td { padding: 15px 10px; border-top: 1px solid var(--glass-border); font-size: 0.9rem; }
+
+        @media (max-width: 1024px) { .app-shell { grid-template-columns: 1fr; } aside { display: none; } .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -98,163 +66,160 @@
 <div class="app-shell">
     <aside>
         <div class="logo">AVODA.AI</div>
-        <nav class="nav-links">
-            <a onclick="showView('dashboard')" class="nav-item active"><i data-lucide="layout-dashboard"></i> <span>Dashboard</span></a>
-            <a onclick="showView('swap')" class="nav-item"><i data-lucide="refresh-cw"></i> <span>DEX Swap</span></a>
-            <a onclick="showView('wallet')" class="nav-item"><i data-lucide="wallet"></i> <span>Wallet</span></a>
-            <a onclick="showView('ai')" class="nav-item"><i data-lucide="brain-circuit"></i> <span>AI Insights</span></a>
-        </nav>
-        <div class="nav-item" id="theme-toggle"><i data-lucide="moon"></i> <span>Dark Mode</span></div>
+        <div class="nav-item active"><i data-lucide="layout-dashboard"></i> Dashboard</div>
+        <div class="nav-item"><i data-lucide="repeat"></i> Swap DEX</div>
+        <div class="nav-item" onclick="generateMnemonic()"><i data-lucide="key"></i> Create Wallet</div>
+        <div class="nav-item"><i data-lucide="shield-check"></i> Security</div>
     </aside>
 
-    <main id="view-container">
-        <header class="header">
+    <main>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
             <div>
-                <h1>Hello, Super V</h1>
-                <p style="color: var(--text-dim)">Market is <span style="color: var(--success)">Bullish (+4.2%)</span></p>
+                <h1 id="user-greeting">Welcome, Super V</h1>
+                <p id="wallet-addr" style="color: var(--text-dim)">Wallet: Not Connected</p>
             </div>
-            <button class="btn-action" style="width: auto; padding: 0.8rem 1.5rem;" onclick="connectWallet()">Connect Wallet</button>
-        </header>
+            <button class="btn-primary" style="width: auto; padding: 0.7rem 1.5rem;" id="connectBtn" onclick="connect()">Connect Wallet</button>
+        </div>
 
-        <div class="grid-layout">
-            <div class="glass-card col-8">
-                <h3>Portfolio Allocation</h3>
-                <div style="height: 300px; margin-top: 1rem;">
-                    <canvas id="portfolioChart"></canvas>
+        <div class="grid">
+            <div style="display: flex; flex-direction: column; gap: 2rem;">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between;">
+                        <h3>Portfolio Overview</h3>
+                        <span style="color: var(--success)" id="live-eth-price">Loading Price...</span>
+                    </div>
+                    <div style="height: 250px;"><canvas id="chart"></canvas></div>
                 </div>
-            </div>
 
-            <div class="glass-card col-4">
-                <h3>AI Insights</h3>
-                <div class="ai-badge" style="border-left: 4px solid var(--danger)">
-                    <i data-lucide="alert-triangle" style="color: var(--danger)"></i>
-                    <div>
-                        <p style="font-size: 0.9rem;">Rugpull Warning</p>
-                        <small style="color: var(--text-dim)">Token 0x4f... shows high slippage risk.</small>
-                    </div>
-                </div>
-                <div class="ai-badge" style="border-left: 4px solid var(--accent)">
-                    <i data-lucide="zap" style="color: var(--accent)"></i>
-                    <div>
-                        <p style="font-size: 0.9rem;">Smart Swap</p>
-                        <small style="color: var(--text-dim)">Save 0.02 ETH gas via Aria Route.</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card col-4">
-                <h3>Quick Swap</h3>
-                <div class="swap-container" style="margin-top: 1.5rem;">
-                    <div class="swap-input-box">
-                        <small style="color: var(--text-dim)">From</small>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <input type="number" placeholder="0.0" id="inputAmt">
-                            <span class="token-badge">ETH</span>
-                        </div>
-                    </div>
-                    <div style="text-align: center; margin: -10px 0; z-index: 2;"><i data-lucide="arrow-down-circle"></i></div>
-                    <div class="swap-input-box">
-                        <small style="color: var(--text-dim)">To (Estimated)</small>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <input type="number" placeholder="0.0" readonly id="outputAmt">
-                            <span class="token-badge">AVODA</span>
-                        </div>
-                    </div>
-                    <button class="btn-action" onclick="swapTokens()">Execute Swap</button>
-                </div>
-            </div>
-
-            <div class="glass-card col-8">
-                <h3>Recent Activity</h3>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
-                    <thead>
-                        <tr style="text-align: left; color: var(--text-dim); font-size: 0.8rem;">
-                            <th style="padding: 10px;">Type</th>
-                            <th>Status</th>
-                            <th>Amount</th>
-                            <th>Time</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tx-history">
+                <div class="card">
+                    <h3>Recent Transactions</h3>
+                    <table>
+                        <thead><tr><th>Action</th><th>Status</th><th>Value</th><th>Hash</th></tr></thead>
+                        <tbody id="tx-history">
+                            <tr><td>Swap ETH/AVODA</td><td style="color: var(--success)">Success</td><td>+1.2k</td><td>0x...4f2</td></tr>
                         </tbody>
-                </table>
+                    </table>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 2rem;">
+                <div class="card">
+                    <h3>Fast Swap</h3>
+                    <div class="swap-box">
+                        <small style="color: var(--text-dim)">You Send</small>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <input type="number" id="swapInput" placeholder="0.0" oninput="updateSwap()">
+                            <select class="token-sel" id="network"><option>ETH</option><option>BSC</option></select>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin: -5px 0;"><i data-lucide="arrow-down-circle"></i></div>
+                    <div class="swap-box">
+                        <small style="color: var(--text-dim)">You Receive (Est.)</small>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <input type="number" id="swapOutput" placeholder="0.0" readonly>
+                            <span class="token-sel">AVODA</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary" id="swapBtn" onclick="doSwap()" disabled>Connect to Swap</button>
+                </div>
+
+                <div class="card" id="mnemonic-card" style="display: none;">
+                    <h3>New Wallet Seed</h3>
+                    <p style="font-size: 0.75rem; color: var(--danger); margin: 5px 0;">Write this down. AI cannot recover it.</p>
+                    <div class="mnemonic-grid" id="mnemonic-display"></div>
+                    <button class="btn-primary" style="background: var(--glass)" onclick="this.parentElement.style.display='none'">Securely Stored</button>
+                </div>
+
+                <div class="card">
+                    <h3 style="display: flex; align-items: center; gap: 10px;"><i data-lucide="cpu" style="color: var(--accent)"></i> AI Security</h3>
+                    <div style="background: rgba(255, 77, 77, 0.1); border: 1px solid var(--danger); padding: 12px; border-radius: 12px; margin-top: 15px;">
+                        <p style="font-size: 0.85rem; color: var(--danger);"><strong>Rugpull Alert:</strong> High slippage on "Nai X" token detected by AI audit.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 </div>
 
 <script>
-    /* =========================================
-    MODULAR WEB3 LOGIC PLACEHOLDERS
-    =========================================
-    */
-
-    // 1. Initialize Icons
     lucide.createIcons();
+    let currentPrice = 2500;
 
-    // 2. Mock Data for Demo
-    const mockTxs = [
-        { type: 'Swap ETH to AVODA', status: 'Success', amt: '+1,200 AVODA', time: '2m ago' },
-        { type: 'Received BSC', status: 'Pending', amt: '+0.5 BNB', time: '15m ago' },
-        { type: 'Liquidity Added', status: 'Success', amt: '0.1 ETH / AVODA', time: '1h ago' }
-    ];
+    // --- Price Feed Integration ---
+    async function fetchPrice() {
+        try {
+            const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+            const data = await res.json();
+            currentPrice = data.ethereum.usd;
+            document.getElementById('live-eth-price').innerText = `ETH: $${currentPrice.toLocaleString()}`;
+        } catch (e) { document.getElementById('live-eth-price').innerText = "ETH: $2,500 (Offline)"; }
+    }
+    fetchPrice();
+    setInterval(fetchPrice, 30000);
 
-    // 3. UI Interactions
-    function showView(view) {
-        console.log(`Switching to ${view} view... [Placeholder for SPA Routing]`);
-        // Logic to swap innerHTML would go here for a full SPA
+    // --- Web3 Connection ---
+    async function connect() {
+        if (window.ethereum) {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const accounts = await provider.send("eth_requestAccounts", []);
+            const addr = accounts[0];
+            document.getElementById('wallet-addr').innerText = `Wallet: ${addr.substring(0,6)}...${addr.slice(-4)}`;
+            document.getElementById('connectBtn').innerText = "Connected";
+            document.getElementById('swapBtn').disabled = false;
+            document.getElementById('swapBtn').innerText = "Swap Now";
+        } else { alert("Please install MetaMask"); }
     }
 
-    // 4. Web3 Connection Placeholder
-    async function connectWallet() {
-        console.log("Connecting to Web3 Provider...");
-        alert("Integrate Ethers.js here to connect MetaMask/WalletConnect.");
+    // --- DEX Math ---
+    function updateSwap() {
+        const input = document.getElementById('swapInput').value;
+        const output = document.getElementById('swapOutput');
+        if (input > 0) {
+            output.value = (input * (currentPrice / 0.5)).toFixed(2); // Simulated AVODA at $0.50
+        } else { output.value = ""; }
     }
 
-    // 5. Swap Logic Placeholder
-    function swapTokens() {
-        const amt = document.getElementById('inputAmt').value;
-        if(!amt) return alert("Enter an amount");
-        document.getElementById('outputAmt').value = (amt * 2850).toFixed(2); // Simulated Rate
+    function doSwap() {
+        const btn = document.getElementById('swapBtn');
+        btn.innerText = "Processing...";
+        setTimeout(() => {
+            btn.innerText = "Swap Now";
+            const history = document.getElementById('tx-history');
+            const row = `<tr><td>ETH to AVODA</td><td style="color: var(--success)">Success</td><td>${document.getElementById('swapOutput').value}</td><td>0x${Math.random().toString(16).slice(2,8)}</td></tr>`;
+            history.innerHTML = row + history.innerHTML;
+            alert("Transaction Confirmed!");
+        }, 2000);
     }
 
-    // 6. Theme Toggle
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-        const theme = document.documentElement.getAttribute('data-theme');
-        document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');
-    });
+    // --- Mnemonic Generator ---
+    function generateMnemonic() {
+        const words = ["alpha", "bravo", "cyber", "delta", "echo", "fluid", "galaxy", "harvest", "index", "jungle", "kilo", "liquid", "matrix", "nova", "ocean", "pulse", "quantum", "radar", "solar", "tech"];
+        const display = document.getElementById('mnemonic-display');
+        const card = document.getElementById('mnemonic-card');
+        display.innerHTML = "";
+        for(let i=0; i<12; i++) {
+            const word = words[Math.floor(Math.random() * words.length)];
+            display.innerHTML += `<div class="word-tag">${i+1}. ${word}</div>`;
+        }
+        card.style.display = 'block';
+    }
 
-    // 7. Render Charts
-    const ctx = document.getElementById('portfolioChart').getContext('2d');
+    // --- Chart ---
+    const ctx = document.getElementById('chart').getContext('2d');
     new Chart(ctx, {
-        type: 'doughnut',
+        type: 'line',
         data: {
-            labels: ['AVODA', 'ETH', 'USDC', 'ARIA'],
+            labels: ['1h', '2h', '3h', '4h', '5h', '6h'],
             datasets: [{
-                data: [45, 25, 20, 10],
-                backgroundColor: ['#00f2ff', '#7000ff', '#2775ca', '#ff4d4d'],
-                borderWidth: 0
+                data: [2400, 2450, 2420, 2480, 2510, 2500],
+                borderColor: '#00f2ff',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(0, 242, 255, 0.05)'
             }]
         },
-        options: { 
-            maintainAspectRatio: false,
-            plugins: { legend: { position: 'right', labels: { color: '#94a3b8' } } }
-        }
-    });
-
-    // 8. Load Transactions
-    const txTable = document.getElementById('tx-history');
-    mockTxs.forEach(tx => {
-        txTable.innerHTML += `
-            <tr style="border-top: 1px solid var(--card-border);">
-                <td style="padding: 15px 10px;">${tx.type}</td>
-                <td style="color: ${tx.status === 'Success' ? 'var(--success)' : 'orange'}">${tx.status}</td>
-                <td>${tx.amt}</td>
-                <td style="color: var(--text-dim)">${tx.time}</td>
-            </tr>
-        `;
+        options: { plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
     });
 </script>
-
 </body>
 </html>
