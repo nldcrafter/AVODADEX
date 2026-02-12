@@ -1,1565 +1,348 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AVODA DEX Premium</title>
-<style>
-/* Global Reset */
-* {margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
-body {background: linear-gradient(135deg,#000014,#030B2A,#021F3E);color:#fff; overflow-x:hidden; overflow-y:auto;}
-@keyframes glow{0%{box-shadow:0 0 5px #0ff;}50%{box-shadow:0 0 20px #ff09ff;}100%{box-shadow:0 0 5px #0ff;}}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVODA | Premium Web3 Wallet & DEX</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --bg: #030508;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-heavy: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #00f2ff;
+            --accent-glow: rgba(0, 242, 255, 0.4);
+            --text: #ffffff;
+            --text-dim: #94a3b8;
+            --danger: #ff4d4d;
+            --success: #00ff88;
+            --avoda-gradient: linear-gradient(135deg, #00f2ff 0%, #7000ff 100%);
+        }
 
-/* Header */
-header{display:flex;justify-content:space-between;align-items:center;padding:20px 40px; background:rgba(0,0,0,0.6); border-bottom:2px solid #0ff;}
-header h1{font-size:28px;font-weight:bold;color:#0ff;text-shadow:0 0 10px #0ff;letter-spacing:2px;}
-nav a{margin:0 15px;font-weight:bold;font-size:14px;color:#0ff;text-decoration:none;transition:0.3s;cursor:pointer;}
-nav a:hover{color:#ff09ff;}
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-/* Hero Section */
-.hero{text-align:center;padding:80px 20px;background:linear-gradient(90deg, rgba(0,246,255,0.05), rgba(255,0,153,0.05));}
-.hero h2{font-size:42px;text-shadow:0 0 15px #0ff;}
-.hero p{margin-top:10px;font-size:18px;opacity:0.8;}
-.btn{margin-top:20px;padding:12px 30px;background:#0ff;color:#000;font-weight:bold;border-radius:30px;box-shadow:0 0 20px #0ff;cursor:pointer;transition:0.3s;}
-.btn:hover{background:#ff09ff;box-shadow:0 0 20px #ff09ff;}
+        /* Background Glows */
+        .glow {
+            position: fixed; width: 40vw; height: 40vw; border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            filter: blur(100px); z-index: -1; opacity: 0.5;
+        }
+        .glow-1 { top: -10%; right: -10%; }
+        .glow-2 { bottom: -10%; left: -10%; }
 
-/* Dashboard Grid */
-.dashboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;padding:50px 40px;}
-.card{background:rgba(255,255,255,0.05);border:1px solid rgba(0,246,255,0.3);padding:20px;border-radius:20px;box-shadow:0 0 20px rgba(0,246,255,0.2);backdrop-filter:blur(8px);transition:0.4s;position:relative;}
-.card:hover{transform:translateY(-5px);box-shadow:0 0 30px rgba(255,0,153,0.4);}
-.card h3{color:#0ff;margin-bottom:10px;font-size:22px;}
-.card p{font-size:14px;opacity:0.8;}
+        .app-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
 
-/* Trading Panel */
-.trade-panel{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;padding:40px;}
-.trade-box{background:rgba(255,255,255,0.05);border:1px solid #0ff;border-radius:20px;padding:20px;width:350px;box-shadow:0 0 20px #0ff;transition:0.3s;}
-.trade-box:hover{box-shadow:0 0 30px #ff09ff;}
-.trade-box h4{color:#0ff;margin-bottom:10px;}
-.trade-box input, .trade-box select{width:100%;padding:10px;margin:8px 0;border-radius:10px;border:none;background:rgba(255,255,255,0.1);color:#fff;}
-.trade-box button{width:100%;padding:10px;margin-top:10px;background:#0ff;color:#000;font-weight:bold;border-radius:20px;cursor:pointer;transition:0.3s;}
-.trade-box button:hover{background:#ff09ff;color:#fff;}
+        /* Sidebar */
+        aside {
+            background: var(--glass);
+            border-right: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            padding: 2.5rem 1.5rem;
+            display: flex; flex-direction: column; gap: 2.5rem;
+        }
+        .logo { font-size: 1.8rem; font-weight: 900; background: var(--avoda-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .nav-link {
+            display: flex; align-items: center; gap: 1rem; color: var(--text-dim);
+            text-decoration: none; padding: 1rem; border-radius: 16px; cursor: pointer;
+            transition: 0.2s;
+        }
+        .nav-link:hover, .nav-link.active { background: var(--glass-heavy); color: var(--text); border: 1px solid var(--glass-border); }
 
-/* Price Tracker */
-.price-tracker{display:flex;gap:15px;justify-content:center;margin-bottom:20px;flex-wrap:wrap;}
-.price-item{background:rgba(0,246,255,0.1);padding:15px 25px;border-radius:15px;box-shadow:0 0 15px rgba(0,246,255,0.3);transition:0.3s;}
-.price-item:hover{box-shadow:0 0 25px rgba(255,0,153,0.5);}
-.price-item h4{margin-bottom:5px;color:#0ff;}
-.price-item p{font-weight:bold;}
+        /* Main Area */
+        main { padding: 2rem 3rem; overflow-y: auto; }
+        .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
+        
+        /* Stats Grid */
+        .grid { display: grid; grid-template-columns: 1.8fr 1fr; gap: 2rem; }
 
-/* Wallet Modal */
-#walletModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);justify-content:center;align-items:center;z-index:1000;}
-.wallet-content{background:#161b22;padding:30px;border-radius:20px;min-width:300px;text-align:center;box-shadow:0 0 25px #0ff;}
-.wallet-content h3{margin-bottom:20px;color:#0ff;}
-.wallet-content button{margin:8px;padding:10px 20px;border:none;border-radius:12px;background:#0ff;color:#000;font-weight:bold;cursor:pointer;transition:0.3s;}
-.wallet-content button:hover{background:#ff09ff;color:#fff;}
-.close-wallet{position:absolute;top:15px;right:25px;font-size:24px;color:#fff;cursor:pointer;}
+        /* Cards */
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(15px);
+            border-radius: 28px;
+            padding: 2rem;
+            position: relative;
+        }
 
-/* Settings Modal */
-#settingsModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);justify-content:center;align-items:center;z-index:1000;}
-#settingsModal div{background:#161b22;padding:30px;border-radius:20px;min-width:300px;text-align:center;box-shadow:0 0 25px #0ff;}
-#settingsModal h3{color:#0ff;margin-bottom:20px;}
-#settingsModal span{position:absolute;top:15px;right:25px;font-size:24px;color:#fff;cursor:pointer;}
+        /* Portfolio */
+        .balance-label { color: var(--text-dim); font-size: 0.9rem; }
+        .balance-value { font-size: 2.5rem; font-weight: 700; margin: 0.5rem 0; }
 
-/* Particles */
-#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-1;}
-.particle{position:absolute;background:#0ff;border-radius:50%;opacity:0.7;animation:particleMove linear infinite;}
-@keyframes particleMove{0%{transform:translateY(0);}100%{transform:translateY(-100vh);}}
+        /* DEX Swap Widget */
+        .swap-box { display: flex; flex-direction: column; gap: 8px; }
+        .swap-input-group {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            padding: 1.5rem; border-radius: 20px;
+        }
+        .swap-input-group label { display: block; color: var(--text-dim); font-size: 0.8rem; margin-bottom: 0.5rem; }
+        .swap-row { display: flex; justify-content: space-between; align-items: center; }
+        .swap-row input { background: transparent; border: none; color: white; font-size: 1.5rem; outline: none; width: 60%; }
+        .token-select { background: var(--glass-heavy); padding: 6px 12px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        
+        .divider { 
+            height: 40px; width: 40px; background: var(--glass-heavy); 
+            border: 1px solid var(--glass-border); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin: -20px auto; position: relative; z-index: 2;
+        }
 
-/* Footer */
-footer{text-align:center;padding:20px;font-size:14px;color:#aaa;background:rgba(0,0,0,0.5);border-top:1px solid #0ff;}
-footer a{color:#0ff;text-decoration:none;}
+        /* Buttons */
+        .btn {
+            background: var(--avoda-gradient);
+            border: none; padding: 1.2rem; border-radius: 18px;
+            color: white; font-weight: 700; cursor: pointer;
+            transition: 0.3s; width: 100%; margin-top: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 242, 255, 0.2);
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px var(--accent-glow); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Sound Button */
-.sound-btn{position:fixed;top:20px;right:20px;padding:10px;border-radius:50%;background:#0ff;color:#000;cursor:pointer;box-shadow:0 0 10px #0ff;}
-.sound-btn:hover{background:#ff09ff;color:#fff;box-shadow:0 0 15px #ff09ff;}
+        .btn-outline {
+            background: transparent; border: 1px solid var(--glass-border);
+            padding: 0.6rem 1.2rem; border-radius: 12px; color: white; cursor: pointer;
+        }
 
-/* Responsive */
-@media(max-width:768px){.trade-panel{flex-direction:column;align-items:center;}}
-</style>
+        /* AI Insights */
+        .insight {
+            display: flex; gap: 1rem; padding: 1rem; border-radius: 16px;
+            background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.1);
+            margin-top: 1rem;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 1024px) {
+            .app-container { grid-template-columns: 1fr; }
+            aside { display: none; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-<!-- Preloader with AVODA Coin -->
-<div id="preloader">
-  <div id="preloaderContent">
-    <div id="avodaCoin">
-      <span>AVODA</span>
-    </div>
-    <div id="loadingBar">
-      <div id="loadingProgress"></div>
-    </div>
-    <p>Loading...</p>
-  </div>
-</div>
 
-<style>
-/* Preloader Styles */
-#preloader {
-  position: fixed;
-  top:0; left:0; width:100%; height:100%;
-  background: #000014;
-  display:flex; justify-content:center; align-items:center;
-  flex-direction: column;
-  z-index: 9999;
-}
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
 
-#avodaCoin {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #0ff, #00bfff);
-  display:flex; justify-content:center; align-items:center;
-  font-weight:bold;
-  font-size: 28px;
-  color: #fff;
-  text-shadow: 0 0 10px #0ff, 0 0 20px #ff09ff, 0 0 30px #0ff;
-  animation: spinCoin 2s linear infinite;
-  margin-bottom: 25px;
-  box-shadow: 0 0 20px #0ff inset, 0 0 40px #ff09ff;
-}
+    <div class="app-container">
+        <aside>
+            <div class="logo">AVODA.AI</div>
+            <nav style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a class="nav-link active"><i data-lucide="layout-grid"></i> Dashboard</a>
+                <a class="nav-link"><i data-lucide="shuffle"></i> DEX Swap</a>
+                <a class="nav-link"><i data-lucide="wallet-2"></i> Portfolio</a>
+                <a class="nav-link"><i data-lucide="line-chart"></i> Markets</a>
+            </nav>
+            <div style="margin-top: auto;" class="card">
+                <p style="font-size: 0.8rem; color: var(--text-dim)">AI Security Score</p>
+                <h4 style="color: var(--success)">98/100 Safe</h4>
+            </div>
+        </aside>
 
-#avodaCoin span {
-  transform: rotate(0deg);
-}
+        <main>
+            <header class="top-nav">
+                <div>
+                    <h2 id="wallet-status">Disconnected</h2>
+                    <p id="network-info" style="color: var(--text-dim)">Please connect to Ethereum or BSC</p>
+                </div>
+                <button class="btn-outline" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+            </header>
 
-/* Loading bar */
-#loadingBar {
-  width: 200px; height: 10px;
-  background: rgba(0,255,255,0.1);
-  border-radius: 5px;
-  overflow: hidden;
-}
+            <div class="grid">
+                <section>
+                    <div class="card" style="margin-bottom: 2rem;">
+                        <span class="balance-label">Total Portfolio Balance</span>
+                        <div class="balance-value">$ <span id="balance-display">0.00</span></div>
+                        <canvas id="mainChart" height="120"></canvas>
+                    </div>
 
-#loadingProgress {
-  width: 0;
-  height: 100%;
-  background: linear-gradient(90deg, #0ff, #ff09ff);
-  animation: loadAnim 3s forwards;
-  border-radius: 5px;
-}
+                    <div class="card">
+                        <h3 style="margin-bottom: 1.5rem;">Recent Activity</h3>
+                        <div id="txHistory">
+                            <p style="color: var(--text-dim); text-align: center; padding: 2rem;">No recent transactions found.</p>
+                        </div>
+                    </div>
+                </section>
 
-#preloaderContent p {
-  margin-top: 15px;
-  color: #0ff;
-  opacity: 0.8;
-  font-weight: bold;
-}
+                <section>
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                            <h3>Swap Tokens</h3>
+                            <i data-lucide="settings" class="nav-link" style="padding:0"></i>
+                        </div>
+                        
+                        <div class="swap-box">
+                            <div class="swap-input-group">
+                                <label>You Pay</label>
+                                <div class="swap-row">
+                                    <input type="number" id="inputAmount" placeholder="0.0" oninput="calculateSwap()">
+                                    <div class="token-select">ETH <i data-lucide="chevron-down" size="14"></i></div>
+                                </div>
+                            </div>
 
-/* Animations */
-@keyframes spinCoin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+                            <div class="divider"><i data-lucide="arrow-down" size="18"></i></div>
 
-@keyframes loadAnim {
-  0% { width: 0; }
-  100% { width: 100%; }
-}
-</style>
+                            <div class="swap-input-group">
+                                <label>You Get (Estimated)</label>
+                                <div class="swap-row">
+                                    <input type="number" id="outputAmount" placeholder="0.0" readonly>
+                                    <div class="token-select">AVODA <i data-lucide="chevron-down" size="14"></i></div>
+                                </div>
+                            </div>
+                            
+                            <div style="padding: 1rem 0; font-size: 0.85rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span style="color: var(--text-dim)">Price Impact</span>
+                                    <span style="color: var(--success)">&lt; 0.01%</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="color: var(--text-dim)">Slippage Tolerance</span>
+                                    <span>0.5%</span>
+                                </div>
+                            </div>
 
-<script>
-// Remove preloader after 3 seconds
-setTimeout(() => {
-  const preloader = document.getElementById('preloader');
-  preloader.style.opacity = '0';
-  setTimeout(()=>preloader.style.display='none', 500);
-}, 3000);
-</script>
-  
-<!-- Particles -->
-<div id="particles"></div>
+                            <button class="btn" id="swapBtn" onclick="executeSwap()" disabled>Connect Wallet to Swap</button>
+                        </div>
+                    </div>
 
-<!-- Sound toggle -->
-<button class="sound-btn" onclick="toggleSound()">🔊</button>
-<audio id="bgSound" loop>
-  <source src="https://freesound.org/data/previews/331/331912_3248244-lq.mp3" type="audio/mpeg">
-</audio>
-
-<!-- Wallet Modal -->
-<div id="walletModal">
-  <div class="wallet-content">
-    <span class="close-wallet" onclick="closeWallet()">&times;</span>
-    <h3>Connect Your Wallet</h3>
-    <button onclick="alert('MetaMask Placeholder')">MetaMask</button>
-    <button onclick="alert('Trust Wallet Placeholder')">Trust Wallet</button>
-    <button onclick="alert('Coinbase Wallet Placeholder')">Coinbase</button>
-    <button onclick="alert('WalletConnect Placeholder')">WalletConnect</button>
-  </div>
-</div>
-
-<!-- Settings Modal -->
-<div id="settingsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:1000;">
-  <div style="background:#161b22; padding:30px; border-radius:20px; min-width:300px; text-align:center; box-shadow:0 0 25px #0ff; position:relative;">
-    <span style="position:absolute; top:15px; right:25px; font-size:24px; color:#fff; cursor:pointer;" onclick="closeSettings()">&times;</span>
-    <h3 style="color:#0ff; margin-bottom:20px;">Settings</h3>
-
-    <!-- Theme Toggle -->
-    <div style="margin-bottom:15px;">
-      <label style="color:#fff; font-weight:bold;">Theme:</label>
-      <button onclick="toggleTheme()" id="themeBtn" style="margin-left:10px; padding:5px 15px; border:none; border-radius:10px; cursor:pointer;">Dark</button>
+                    <div class="card" style="margin-top: 1.5rem; border: 1px solid rgba(0, 242, 255, 0.2);">
+                        <h3><i data-lucide="cpu" size="18" style="vertical-align: middle"></i> AI Insights</h3>
+                        <div class="insight">
+                            <i data-lucide="shield-alert" style="color: var(--danger)"></i>
+                            <div>
+                                <p style="font-size: 0.9rem; font-weight: 600;">Scam Detection</p>
+                                <p style="font-size: 0.75rem; color: var(--text-dim)">0x82...f21 identified as a high-risk honey pot. Avoid interaction.</p>
+                            </div>
+                        </div>
+                        <div class="insight" style="background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.1);">
+                            <i data-lucide="trending-up" style="color: var(--accent)"></i>
+                            <div>
+                                <p style="font-size: 0.9rem; font-weight: 600;">Yield Optimization</p>
+                                <p style="font-size: 0.75rem; color: var(--text-dim)">Moving ETH to Avoda Staking could increase APY by 4.2%.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
     </div>
 
-    <!-- Sound Toggle -->
-    <div style="margin-bottom:15px;">
-      <label style="color:#fff; font-weight:bold;">Sound:</label>
-      <button onclick="toggleSound()" id="soundBtn" style="margin-left:10px; padding:5px 15px; border:none; border-radius:10px; cursor:pointer;">Off</button>
-    </div>
-
-    <!-- Auto-Refresh Toggle -->
-    <div style="margin-bottom:15px;">
-      <label style="color:#fff; font-weight:bold;">Auto-Refresh:</label>
-      <button onclick="toggleAutoRefresh()" id="refreshBtn" style="margin-left:10px; padding:5px 15px; border:none; border-radius:10px; cursor:pointer;">On</button>
-    </div>
-  </div>
-</div>
-
-<script>
-let darkMode = true;
-let soundEnabled = false;
-let autoRefresh = true;
-const bgAudio = document.getElementById('bgSound'); // your existing bg audio
-
-function openSettings() {
-  document.getElementById('settingsModal').style.display = 'flex';
-}
-function closeSettings() {
-  document.getElementById('settingsModal').style.display = 'none';
-}
-
-// Theme Toggle
-function toggleTheme() {
-  darkMode = !darkMode;
-  if(darkMode) {
-    document.body.style.background = "linear-gradient(135deg,#000014,#030B2A,#021F3E)";
-    document.getElementById('themeBtn').innerText = "Dark";
-  } else {
-    document.body.style.background = "linear-gradient(135deg,#ffffff,#cce6ff,#99ccff)";
-    document.getElementById('themeBtn').innerText = "Light";
-  }
-}
-
-// Sound Toggle
-function toggleSound() {
-  soundEnabled = !soundEnabled;
-  if(soundEnabled){ bgAudio.play(); document.getElementById('soundBtn').innerText = "On"; }
-  else { bgAudio.pause(); document.getElementById('soundBtn').innerText = "Off"; }
-}
-
-// Auto-Refresh Toggle
-function toggleAutoRefresh() {
-  autoRefresh = !autoRefresh;
-  document.getElementById('refreshBtn').innerText = autoRefresh ? "On" : "Off";
-}
-</script>
-
-<!-- Header -->
-<header>
-  <h1>AVODA DEX</h1>
-  <nav>
-    <a onclick="scrollToSection('heroSection')">Home</a>
-    <a onclick="openWallet()">Wallet</a>
-    <a onclick="scrollToSection('tradePanel')">Trade</a>
-    <a onclick="scrollToSection('stakingCard')">Staking</a>
-    <a onclick="scrollToSection('newsCard')">News</a>
-    <a onclick="openSettings()">Settings</a>
-  </nav>
-</header>
-
-<!-- Sign Up / Sign In Modal -->
-<div id="authModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:2000;">
-  <div style="background:#161b22;padding:30px;border-radius:20px;min-width:300px;text-align:center;box-shadow:0 0 25px #0ff;">
-    <h2 id="authTitle">Sign In</h2>
-    <input type="text" id="username" placeholder="Username" style="width:80%;padding:10px;margin:10px 0;border-radius:10px;border:none;">
-    <input type="password" id="password" placeholder="Password" style="width:80%;padding:10px;margin:10px 0;border-radius:10px;border:none;">
-    <div style="margin-top:15px;">
-      <button onclick="signIn()" id="signInBtn" style="padding:10px 20px;border-radius:12px;border:none;background:#0ff;color:#000;font-weight:bold;cursor:pointer;">Sign In</button>
-      <button onclick="toggleAuth()" style="padding:10px 20px;border-radius:12px;border:none;background:#ff09ff;color:#fff;font-weight:bold;cursor:pointer;">Switch</button>
-    </div>
-    <p id="authMsg" style="margin-top:10px;color:#ff0;"></p>
-  </div>
-</div>
-
-<script>
-// Toggle between Sign In and Sign Up
-let isSignIn = true;
-function toggleAuth() {
-  isSignIn = !isSignIn;
-  document.getElementById('authTitle').innerText = isSignIn ? 'Sign In' : 'Sign Up';
-  document.getElementById('signInBtn').innerText = isSignIn ? 'Sign In' : 'Sign Up';
-  document.getElementById('authMsg').innerText = '';
-}
-
-// Sign Up or Sign In
-function signIn() {
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value.trim();
-  if(!username || !password){document.getElementById('authMsg').innerText='Enter both fields'; return;}
-
-  if(isSignIn){
-    // Sign In
-    const stored = JSON.parse(localStorage.getItem(username));
-    if(stored && stored.password === password){
-      document.getElementById('authModal').style.display='none';
-      alert('Welcome back, ' + username + '!');
-      // Here you can show dashboard or other features
-    } else {
-      document.getElementById('authMsg').innerText='Invalid credentials';
-    }
-  } else {
-    // Sign Up
-    if(localStorage.getItem(username)){
-      document.getElementById('authMsg').innerText='Username already exists';
-      return;
-    }
-    localStorage.setItem(username, JSON.stringify({password}));
-    document.getElementById('authMsg').innerText='Account created! You can sign in now';
-    toggleAuth();
-  }
-}
-</script>
-
-  
-<!-- Hero -->
-<section class="hero" id="heroSection">
-  <h2>Future of Finance. Built for Space. Powered by AVODA.</h2>
-  <p>Fast. Secure. Global. Trade like the future is already here.</p>
-  <button class="btn" onclick="scrollToSection('tradePanel')">Launch Trade</button>
-</section>
-
-<!-- Price Tracker with 24h Change -->
-<section class="price-tracker" id="priceTracker">
-  <div class="price-item" data-coin="BTC">
-    <h4>BTC</h4>
-    <p class="price">$27,000</p>
-    <p class="change">+0.0% ▲</p>
-  </div>
-  <div class="price-item" data-coin="ETH">
-    <h4>ETH</h4>
-    <p class="price">$1,800</p>
-    <p class="change">+0.0% ▲</p>
-  </div>
-  <div class="price-item" data-coin="BNB">
-    <h4>BNB</h4>
-    <p class="price">$320</p>
-    <p class="change">+0.0% ▲</p>
-  </div>
-  <div class="price-item" data-coin="XRP">
-    <h4>XRP</h4>
-    <p class="price">$0.50</p>
-    <p class="change">+0.0% ▲</p>
-  </div>
-  <div class="price-item" data-coin="SOL">
-    <h4>SOL</h4>
-    <p class="price">$22</p>
-    <p class="change">+0.0% ▲</p>
-  </div>
-  <div class="price-item" data-coin="AVD">
-    <h4>AVD</h4>
-    <p class="price">$0.50</p>
-    <p class="change">+0.0% ▲</p>
-  </div>
-</section>
-
-<script>
-// Dummy price and 24h change updates
-function updatePriceTracker() {
-  document.querySelectorAll('.price-item').forEach(item => {
-    const coin = item.getAttribute('data-coin');
-    let basePrice = {
-      BTC: 27000,
-      ETH: 1800,
-      BNB: 320,
-      XRP: 0.50,
-      SOL: 22,
-      AVD: 0.50
-    }[coin];
-<!-- Dynamic Token Spotlight -->
-<section class="price-tracker" id="priceTracker">
-  <div class="price-item" data-coin="BTC"><h4>BTC</h4><p class="price">$27,000</p><p class="change">+0.0%</p></div>
-  <div class="price-item" data-coin="ETH"><h4>ETH</h4><p class="price">$1,800</p><p class="change">+0.0%</p></div>
-  <div class="price-item" data-coin="BNB"><h4>BNB</h4><p class="price">$320</p><p class="change">+0.0%</p></div>
-  <div class="price-item" data-coin="XRP"><h4>XRP</h4><p class="price">$0.50</p><p class="change">+0.0%</p></div>
-  <div class="price-item" data-coin="SOL"><h4>SOL</h4><p class="price">$22</p><p class="change">+0.0%</p></div>
-  <div class="price-item" data-coin="AVD"><h4>AVD</h4><p class="price">$0.50</p><p class="change">+0.0%</p></div>
-</section>
-
-<script>
-// Dynamic price and 24h change simulation
-function updateTokenSpotlight() {
-  const coins = {
-    BTC: { price: 27000, change: 0 },
-    ETH: { price: 1800, change: 0 },
-    BNB: { price: 320, change: 0 },
-    XRP: { price: 0.50, change: 0 },
-    SOL: { price: 22, change: 0 },
-    AVD: { price: 0.50, change: 0 }
-  };
-
-  document.querySelectorAll('.price-item').forEach(el => {
-    const coin = el.dataset.coin;
-    // Random price movement
-    const move = (Math.random() - 0.5) * 100; // random for demo
-    coins[coin].price = Math.max(coins[coin].price + move, 0.01);
-    coins[coin].change = ((Math.random() - 0.5) * 10).toFixed(2); // simulate % change
-
-    const priceEl = el.querySelector('.price');
-    const changeEl = el.querySelector('.change');
-
-    priceEl.innerText = '$' + coins[coin].price.toFixed(2);
-
-    // Up/down arrow and color
-    if(coins[coin].change >= 0){
-      changeEl.innerHTML = `&#9650; ${coins[coin].change}%`;
-      changeEl.style.color = '#0f0';
-    } else {
-      changeEl.innerHTML = `&#9660; ${coins[coin].change}%`;
-      changeEl.style.color = '#f00';
-    }
-  });
-}
-
-setInterval(updateTokenSpotlight, 3000);
-updateTokenSpotlight();
-</script>
-
-<!-- Dashboard Cards -->
-<section class="dashboard">
-  <div class="card" id="liveMarket"><h3>Live Market</h3><p>AVD, BTC, ETH, XRP prices in real-time.</p></div>
-  <div class="card" id="walletCard"><h3>Wallet</h3><p>Manage your assets securely with AVODA wallet.</p></div>
-  <div class="card" id="stakingCard"><h3>Staking</h3><p>Earn rewards by staking AVD tokens.</p></div>
-  <div class="card" id="analyticsCard"><h3>Analytics</h3><p>View portfolio stats, trends, and market insights.</p></div>
-  <div class="card" id="newsCard"><h3>News</h3><p>Latest blockchain and crypto updates.</p></div>  
-  <div class="card" id="premiumCard"><h3>Premium Access</h3><p>Get early access to launchpads and tools.</p></div>  
-</section>
-
-  <!-- Portfolio Section -->
-<section class="dashboard" id="portfolioSection">
-  <div class="card" id="portfolioCard">
-    <h3>Portfolio</h3>
-    <p>Track your token balances and total USD value.</p>
-    <div class="portfolio-item"><span>AVD:</span> <span id="balanceAVD">0.00</span></div>
-    <div class="portfolio-item"><span>BTC:</span> <span id="balanceBTC">0.00</span></div>
-    <div class="portfolio-item"><span>ETH:</span> <span id="balanceETH">0.00</span></div>
-    <div class="portfolio-item"><strong>Total USD:</strong> <span id="totalUSD">0.00</span></div>
-  </div>
-</section>
-
-<!-- Transactions Section -->
-<section class="dashboard" id="transactionsSection">
-  <div class="card" id="transactionsCard">
-    <h3>Transaction History</h3>
-    <p>View your latest trades and wallet activity.</p>
-    <table style="width:100%; margin-top:10px; border-collapse:collapse; text-align:center;">
-      <thead>
-        <tr>
-          <th style="padding:8px; border-bottom:1px solid #0ff;">Type</th>
-          <th style="padding:8px; border-bottom:1px solid #0ff;">Token</th>
-          <th style="padding:8px; border-bottom:1px solid #0ff;">Amount</th>
-          <th style="padding:8px; border-bottom:1px solid #0ff;">Time</th>
-          <th style="padding:8px; border-bottom:1px solid #0ff;">Status</th>
-        </tr>
-      </thead>
-      <tbody id="txBody"></tbody>
-    </table>
-  </div>
-</section>
-
-<script>
-// Dummy portfolio balances (replace with real wallet API later)
-let balances = { AVD: 500, BTC: 0.05, ETH: 1 };
-
-// Update portfolio values
-function updatePortfolio() {
-  const prices = { AVD: 0.5, BTC: 27000, ETH: 1800 };
-  document.getElementById('balanceAVD').innerText = balances.AVD.toFixed(2) + " AVD";
-  document.getElementById('balanceBTC').innerText = balances.BTC.toFixed(4) + " BTC";
-  document.getElementById('balanceETH').innerText = balances.ETH.toFixed(2) + " ETH";
-  const totalUSD = balances.AVD*prices.AVD + balances.BTC*prices.BTC + balances.ETH*prices.ETH;
-  document.getElementById('totalUSD').innerText = "$" + totalUSD.toFixed(2);
-}
-setInterval(updatePortfolio, 3000);
-updatePortfolio();
-
-// Dummy transactions (replace with blockchain data later)
-let transactions = [
-  { type: 'Swap', token: 'AVD', amount: 100, time: '12:00 PM', status: 'Completed' },
-  { type: 'Deposit', token: 'BTC', amount: 0.01, time: '1:30 PM', status: 'Pending' },
-  { type: 'Withdraw', token: 'ETH', amount: 0.5, time: '2:15 PM', status: 'Completed' },
-  { type: 'Swap', token: 'AVD', amount: 50, time: '3:00 PM', status: 'Completed' }
-];
-
-// Update transactions table
-function updateTransactions() {
-  const tbody = document.getElementById('txBody');
-  tbody.innerHTML = '';
-  transactions.forEach(tx => {
-    const row = `<tr>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.type}</td>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.token}</td>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.amount}</td>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.time}</td>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.status}</td>
-    </tr>`;
-    tbody.innerHTML += row;
-  });
-}
-updateTransactions();
-
-// Navigation button actions
-document.querySelectorAll('nav a').forEach(a => {
-  a.addEventListener('click', function(e) {
-    e.preventDefault();
-    const target = this.innerText.toLowerCase();
-    if(target === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
-    else if(target === 'wallet') openWallet();
-    else if(target === 'trade') document.getElementById('tradePanel').scrollIntoView({behavior:'smooth'});
-    else if(target === 'staking') document.getElementById('stakingCard').scrollIntoView({behavior:'smooth'});
-    else if(target === 'news') document.getElementById('newsCard').scrollIntoView({behavior:'smooth'});
-    else if(target === 'settings') alert('Settings placeholder');
-  });
-});
-</script>
-  
-
-
-<!-- Advanced Swap Section -->
-<section class="dashboard" id="advancedSwapSection" style="margin-top:20px;">
-  <div class="card" id="advancedSwapCard">
-    <h3>Advanced Swap</h3>
-    <div class="swap-box">
-      <div>
-        <label>From:</label>
-        <select id="fromToken">
-          <option value="AVD">AVD</option>
-          <option value="BTC">BTC</option>
-          <option value="ETH">ETH</option>
-        </select>
-        <input type="number" id="fromAmount" placeholder="0.00">
-        <button onclick="setMax()">Max</button>
-      </div>
-      <div>
-        <label>To:</label>
-        <select id="toToken">
-          <option value="BTC">BTC</option>
-          <option value="ETH">ETH</option>
-          <option value="AVD">AVD</option>
-        </select>
-        <input type="number" id="toAmount" placeholder="0.00" disabled>
-      </div>
-      <div>
-        <label>Slippage (%)</label>
-        <input type="number" id="slippage" value="0.5" step="0.1">
-      </div>
-      <button class="btn" onclick="performSwap()">Swap</button>
-    </div>
-  </div>
-</section>
-
-<script>
-// Dummy balances
-let balances = { AVD: 500, BTC: 0.05, ETH: 1 };
-// Dummy prices
-const prices = { AVD: 0.5, BTC: 27000, ETH: 1800 };
-
-// Max button
-function setMax() {
-  const fromToken = document.getElementById('fromToken').value;
-  document.getElementById('fromAmount').value = balances[fromToken];
-  updateSwapOutput();
-}
-
-// Update swap output dynamically
-function updateSwapOutput() {
-  const fromToken = document.getElementById('fromToken').value;
-  const toToken = document.getElementById('toToken').value;
-  const fromAmount = parseFloat(document.getElementById('fromAmount').value) || 0;
-  const slippage = parseFloat(document.getElementById('slippage').value) || 0;
-
-  if(fromToken === toToken) {
-    document.getElementById('toAmount').value = fromAmount;
-    return;
-  }
-
-  // Convert from -> USD -> to
-  const usdValue = fromAmount * prices[fromToken];
-  let toAmount = usdValue / prices[toToken];
-
-  // Apply slippage
-  toAmount = toAmount * (1 - slippage / 100);
-  document.getElementById('toAmount').value = toAmount.toFixed(6);
-}
-
-// Perform swap
-function performSwap() {
-  const fromToken = document.getElementById('fromToken').value;
-  const toToken = document.getElementById('toToken').value;
-  const fromAmount = parseFloat(document.getElementById('fromAmount').value) || 0;
-  const toAmount = parseFloat(document.getElementById('toAmount').value) || 0;
-
-  if(fromAmount > balances[fromToken]) {
-    alert("Insufficient balance!");
-    return;
-  }
-  if(fromToken === toToken) {
-    alert("Select different tokens!");
-    return;
-  }
-
-  balances[fromToken] -= fromAmount;
-  balances[toToken] += toAmount;
-
-  alert(`Swapped ${fromAmount} ${fromToken} → ${toAmount.toFixed(6)} ${toToken}`);
-  updatePortfolio();
-  updateSwapOutput();
-}
-
-// Update output on input change
-document.getElementById('fromAmount').addEventListener('input', updateSwapOutput);
-document.getElementById('fromToken').addEventListener('change', updateSwapOutput);
-document.getElementById('toToken').addEventListener('change', updateSwapOutput);
-
-// Make sure updatePortfolio exists from your dashboard code
-function updatePortfolio() {
-  document.getElementById('balanceAVD').innerText = balances.AVD.toFixed(2) + " AVD";
-  document.getElementById('balanceBTC').innerText = balances.BTC.toFixed(4) + " BTC";
-  document.getElementById('balanceETH').innerText = balances.ETH.toFixed(2) + " ETH";
-  const totalUSD = balances.AVD*prices.AVD + balances.BTC*prices.BTC + balances.ETH*prices.ETH;
-  document.getElementById('totalUSD').innerText = "$" + totalUSD.toFixed(2);
-}
-</script>
-
-<style>
-.swap-box { display:flex; flex-direction:column; gap:10px; }
-.swap-box div { display:flex; gap:10px; align-items:center; }
-.swap-box input, .swap-box select { padding:5px; flex:1; }
-.swap-box button { padding:5px 10px; background:#0ff; border:none; color:#000; cursor:pointer; }
-</style>
-
-
-<!-- Liquidity Pool Section -->
-<section class="dashboard" id="liquidityPoolSection" style="margin-top:30px;">
-  <div class="card" id="liquidityPoolCard">
-    <h3>Liquidity Pool</h3>
-    <p>Track pool contributions and your share.</p>
-
-    <div class="pool-item">
-      <span>Total AVD in Pool:</span>
-      <span id="totalAVD">0</span>
-    </div>
-    <div class="pool-item">
-      <span>Total USD in Pool:</span>
-      <span id="totalUSDPool">$0</span>
-    </div>
-
-    <div class="pool-bar-container">
-      <div class="pool-bar-bg">
-        <div class="pool-bar-user" id="userPoolBar"></div>
-      </div>
-      <span>Your Share: <span id="userShare">0%</span></span>
-    </div>
-
-    <div class="pool-actions" style="margin-top:10px;">
-      <button class="btn" onclick="addLiquidity()">Add Liquidity</button>
-      <button class="btn" onclick="removeLiquidity()">Remove Liquidity</button>
-    </div>
-  </div>
-</section>
-
-<style>
-.pool-bar-container {
-  margin-top: 10px;
-  width: 100%;
-}
-.pool-bar-bg {
-  width: 100%;
-  height: 20px;
-  background-color: #222;
-  border-radius: 10px;
-  overflow: hidden;
-}
-.pool-bar-user {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #0ff, #0aa);
-  transition: width 1s ease-in-out;
-}
-.pool-item {
-  margin: 8px 0;
-  display: flex;
-  justify-content: space-between;
-}
-.pool-actions .btn {
-  margin-right: 10px;
-}
-</style>
-
-<script>
-// Dummy Pool Data
-let pool = {
-  totalAVD: 1000,
-  totalUSD: 500,
-  userSharePercent: 10
-};
-
-// Update Pool Display
-function updatePool() {
-  document.getElementById('totalAVD').innerText = pool.totalAVD.toFixed(2) + " AVD";
-  document.getElementById('totalUSDPool').innerText = "$" + pool.totalUSD.toFixed(2);
-  document.getElementById('userShare').innerText = pool.userSharePercent.toFixed(1) + "%";
-  document.getElementById('userPoolBar').style.width = pool.userSharePercent + "%";
-}
-
-// Add/Remove Liquidity (Dummy)
-function addLiquidity() {
-  pool.userSharePercent += 5;
-  if(pool.userSharePercent > 100) pool.userSharePercent = 100;
-  pool.totalAVD += 50;
-  pool.totalUSD += 25;
-  updatePool();
-  alert("Added liquidity! Your share increased.");
-}
-
-function removeLiquidity() {
-  pool.userSharePercent -= 5;
-  if(pool.userSharePercent < 0) pool.userSharePercent = 0;
-  pool.totalAVD -= 50;
-  pool.totalUSD -= 25;
-  updatePool();
-  alert("Removed liquidity! Your share decreased.");
-}
-
-// Initial Load
-updatePool();
-</script>
-
-
-<!-- Market Prices & Advanced Orders -->
-<section class="dashboard" id="marketOrdersSection" style="margin-top:20px;">
-  <div class="card" id="marketOrdersCard">
-    <h3>Market Prices & Advanced Orders</h3>
-    <p>Watch live prices and place simulated orders.</p>
-
-    <!-- Price Bars -->
-    <div class="price-bar">
-      <span>AVD:</span>
-      <div class="bar-bg"><div id="barAVD" class="bar-fill"></div></div>
-      <span id="priceAVD">$0.50</span>
-    </div>
-    <div class="price-bar">
-      <span>BTC:</span>
-      <div class="bar-bg"><div id="barBTC" class="bar-fill"></div></div>
-      <span id="priceBTC">$27,000</span>
-    </div>
-    <div class="price-bar">
-      <span>ETH:</span>
-      <div class="bar-bg"><div id="barETH" class="bar-fill"></div></div>
-      <span id="priceETH">$1,800</span>
-    </div>
-
-    <!-- Advanced Orders -->
-    <div style="margin-top:20px;">
-      <h4>Advanced Orders Simulator</h4>
-      <div>
-        <label>Token:</label>
-        <select id="orderToken">
-          <option value="AVD">AVD</option>
-          <option value="BTC">BTC</option>
-          <option value="ETH">ETH</option>
-        </select>
-      </div>
-      <div>
-        <label>Order Type:</label>
-        <select id="orderType">
-          <option value="limit">Limit</option>
-          <option value="stop">Stop-Loss</option>
-          <option value="take">Take-Profit</option>
-        </select>
-      </div>
-      <div>
-        <label>Target Price:</label>
-        <input type="number" id="orderPrice" placeholder="Enter price">
-      </div>
-      <button class="btn" onclick="placeOrder()">Place Order</button>
-      <h5>Active Orders:</h5>
-      <ul id="activeOrders"></ul>
-    </div>
-  </div>
-</section>
-
-<style>
-.price-bar {
-  display: flex;
-  align-items: center;
-  margin: 10px 0;
-  font-family: Arial, sans-serif;
-}
-.bar-bg {
-  width: 60%;
-  height: 18px;
-  background: #222;
-  margin: 0 10px;
-  border-radius: 9px;
-  overflow: hidden;
-}
-.bar-fill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #0ff, #0f0);
-  border-radius: 9px;
-  transition: width 0.5s ease;
-}
-#activeOrders li {
-  margin: 5px 0;
-}
-</style>
-
-<script>
-// Simulated market prices
-let marketPrices = { AVD: 0.5, BTC: 27000, ETH: 1800 };
-let orders = [];
-
-// Animate price bars
-function updateMarketBars() {
-  Object.keys(marketPrices).forEach(token => {
-    marketPrices[token] *= 0.98 + Math.random() * 0.04; // +/-2%
-    let widthPercent = Math.min((marketPrices[token]/(token==='BTC'?30000:token==='ETH'?2000:1))*100, 100);
-    document.getElementById('bar' + token).style.width = widthPercent + "%";
-    document.getElementById('price' + token).innerText = "$" + marketPrices[token].toFixed(token==='BTC'?0:2);
-  });
-
-  // Check for orders execution
-  orders.forEach((order, index) => {
-    let currentPrice = marketPrices[order.token];
-    if(order.type === 'limit' && currentPrice === parseFloat(order.price)) {
-      alert(`Limit Order executed: ${order.token} at $${order.price}`);
-      orders.splice(index,1);
-      updateOrdersDisplay();
-    }
-    else if(order.type === 'stop' && currentPrice <= parseFloat(order.price)) {
-      alert(`Stop-Loss triggered: ${order.token} at $${order.price}`);
-      orders.splice(index,1);
-      updateOrdersDisplay();
-    }
-    else if(order.type === 'take' && currentPrice >= parseFloat(order.price)) {
-      alert(`Take-Profit triggered: ${order.token} at $${order.price}`);
-      orders.splice(index,1);
-      updateOrdersDisplay();
-    }
-  });
-}
-setInterval(updateMarketBars, 1000);
-
-// Place order
-function placeOrder() {
-  const token = document.getElementById('orderToken').value;
-  const type = document.getElementById('orderType').value;
-  const price = document.getElementById('orderPrice').value;
-  if(!price) return alert('Enter target price');
-  orders.push({ token, type, price });
-  updateOrdersDisplay();
-}
-
-// Update active orders display
-function updateOrdersDisplay() {
-  const ul = document.getElementById('activeOrders');
-  ul.innerHTML = '';
-  orders.forEach(o => ul.innerHTML += `<li>${o.type} ${o.token} at $${o.price}</li>`);
-}
-</script>
-
-  
-  <!-- Swap Section -->
-<section id="swap" class="dashboard" style="padding:40px; max-width:500px; margin:auto;">
-  <div class="card">
-    <h3>Swap Tokens</h3>
-    
-    <!-- From Token -->
-    <div style="margin-bottom:15px;">
-      <label>From</label>
-      <select id="fromToken" style="width:100%; padding:10px; border-radius:10px; background:rgba(255,255,255,0.1); color:#fff; border:none;">
-        <option value="AVD">AVD</option>
-        <option value="USDT">USDT</option>
-        <option value="BTC">BTC</option>
-      </select>
-    </div>
-    
-    <!-- To Token -->
-    <div style="margin-bottom:15px;">
-      <label>To</label>
-      <select id="toToken" style="width:100%; padding:10px; border-radius:10px; background:rgba(255,255,255,0.1); color:#fff; border:none;">
-        <option value="USDT">USDT</option>
-        <option value="AVD">AVD</option>
-        <option value="BTC">BTC</option>
-      </select>
-    </div>
-    
-    <!-- Amount Input -->
-    <div style="margin-bottom:15px;">
-      <label>Amount</label>
-      <input id="amount" type="number" placeholder="Enter amount" style="width:100%; padding:10px; border-radius:10px; background:rgba(255,255,255,0.1); color:#fff; border:none;">
-    </div>
-    
-    <!-- Swap Button -->
-    <button onclick="swapTokens()" style="width:100%; padding:12px; border:none; border-radius:20px; font-weight:bold; background:#0ff; color:#000; cursor:pointer; transition:0.3s; box-shadow:0 0 20px #0ff;">
-      Swap
-    </button>
-    
-    <!-- Result -->
-    <p id="swapResult" style="margin-top:15px; text-align:center;"></p>
-  </div>
-</section>
-
-<script>
-// Swap Logic
-function swapTokens() {
-  const fromToken = document.getElementById('fromToken').value;
-  const toToken = document.getElementById('toToken').value;
-  const amount = parseFloat(document.getElementById('amount').value);
-  const resultBox = document.getElementById('swapResult');
-
-  if (!amount || amount <= 0) {
-    resultBox.textContent = "⚠️ Enter a valid amount!";
-    return;
-  }
-
-  if (fromToken === toToken) {
-    resultBox.textContent = "⚠️ Cannot swap the same token!";
-    return;
-  }
-
-  // Example rate (replace with real API later)
-  const rate = 1.2; // 1 AVD = 1.2 USDT
-  const swappedAmount = (amount * rate).toFixed(4);
-
-  resultBox.textContent = `✅ Swapped ${amount} ${fromToken} for ~${swappedAmount} ${toToken}`;
-}
-</script>
-
-<!-- Portfolio, Transactions & Staking Section -->
-<section class="dashboard" id="portfolioSection">
-  <div class="card" id="portfolioCard">
-    <h3>Portfolio</h3>
-    <p>Track your token balances and total USD value.</p>
-    <div class="portfolio-item"><span>AVD:</span> <span id="balanceAVD">0.00</span></div>
-    <div class="portfolio-item"><span>BTC:</span> <span id="balanceBTC">0.00</span></div>
-    <div class="portfolio-item"><span>ETH:</span> <span id="balanceETH">0.00</span></div>
-    <div class="portfolio-item"><strong>Total USD:</strong> <span id="totalUSD">0.00</span></div>
-  </div>
-
-  <div class="card" id="transactionsCard" style="margin-top:20px;">
-    <h3>Transaction History</h3>
-    <p>View your latest trades and wallet activity.</p>
-    <table style="width:100%; margin-top:10px; border-collapse:collapse; text-align:center;">
-      <thead>
-        <tr>
-          <th style="padding:8px; border-bottom:1px solid #0ff;">Type</th>
-          <th style="padding:8px; border-bottom:1px solid #0ff;">Token</th>
-          <th style="padding:8px; border-bottom:1px solid #0ff;">Amount</th>
-          <th style="padding:8px; border-bottom:1px solid #0ff;">Time</th>
-          <th style="padding:8px; border-bottom:1px solid #0ff;">Status</th>
-        </tr>
-      </thead>
-      <tbody id="txBody"></tbody>
-    </table>
-  </div>
-
-  <div class="card" id="stakingCardSection" style="margin-top:20px;">
-    <h3>Staking Tracker</h3>
-    <p>Monitor your staked tokens and earned rewards.</p>
-    <div class="portfolio-item"><span>Staked AVD:</span> <span id="stakedAVD">0.00</span></div>
-    <div class="portfolio-item"><span>Rewards:</span> <span id="stakingRewards">0.00</span></div>
-    <button class="btn" onclick="claimRewards()">Claim Rewards</button>
-  </div>
-</section>
-
-<script>
-// Dummy portfolio balances
-let balances = { AVD: 500, BTC: 0.05, ETH: 1 };
-let staked = { AVD: 200, rewards: 5 };
-
-// Update portfolio values
-function updatePortfolio() {
-  const prices = { AVD: 0.5, BTC: 27000, ETH: 1800 };
-  document.getElementById('balanceAVD').innerText = balances.AVD.toFixed(2) + " AVD";
-  document.getElementById('balanceBTC').innerText = balances.BTC.toFixed(4) + " BTC";
-  document.getElementById('balanceETH').innerText = balances.ETH.toFixed(2) + " ETH";
-  const totalUSD = balances.AVD*prices.AVD + balances.BTC*prices.BTC + balances.ETH*prices.ETH;
-  document.getElementById('totalUSD').innerText = "$" + totalUSD.toFixed(2);
-  document.getElementById('stakedAVD').innerText = staked.AVD.toFixed(2) + " AVD";
-  document.getElementById('stakingRewards').innerText = staked.rewards.toFixed(2) + " AVD";
-}
-setInterval(updatePortfolio, 3000);
-updatePortfolio();
-
-// Dummy transactions
-let transactions = [
-  { type: 'Swap', token: 'AVD', amount: 100, time: '12:00 PM', status: 'Completed' },
-  { type: 'Deposit', token: 'BTC', amount: 0.01, time: '1:30 PM', status: 'Pending' },
-  { type: 'Withdraw', token: 'ETH', amount: 0.5, time: '2:15 PM', status: 'Completed' },
-  { type: 'Swap', token: 'AVD', amount: 50, time: '3:00 PM', status: 'Completed' }
-];
-
-// Update transactions table
-function updateTransactions() {
-  const tbody = document.getElementById('txBody');
-  tbody.innerHTML = '';
-  transactions.forEach(tx => {
-    const row = `<tr>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.type}</td>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.token}</td>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.amount}</td>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.time}</td>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.status}</td>
-    </tr>`;
-    tbody.innerHTML += row;
-  });
-}
-updateTransactions();
-
-// Claim rewards placeholder
-function claimRewards() {
-  alert(`Claimed ${staked.rewards.toFixed(2)} AVD rewards!`);
-  staked.rewards = 0;
-  updatePortfolio();
-}
-
-// Navigation buttons scroll to sections
-document.querySelectorAll('nav a').forEach(a => {
-  a.addEventListener('click', function(e) {
-    e.preventDefault();
-    const target = this.innerText.toLowerCase();
-    if(target === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
-    else if(target === 'wallet') openWallet();
-    else if(target === 'trade') document.getElementById('tradePanel').scrollIntoView({behavior:'smooth'});
-    else if(target === 'staking') document.getElementById('stakingCardSection').scrollIntoView({behavior:'smooth'});
-    else if(target === 'news') document.getElementById('newsCard').scrollIntoView({behavior:'smooth'});
-    else if(target === 'settings') alert('Settings placeholder');
-  });
-});
-</script>
-
-<script>
-// --- Reuse existing balances and staked ---
-let balances = { AVD: 500, BTC: 0.05, ETH: 1 };
-let staked = { AVD: 200, rewards: 0 };
-
-// --- Real-time rewards accumulation ---
-const rewardRate = 0.01; // AVD per 3 seconds per staked AVD
-function accumulateRewards() {
-  staked.rewards += staked.AVD * rewardRate;
-  updatePortfolio();
-}
-setInterval(accumulateRewards, 3000);
-
-// --- Update portfolio and staking display ---
-function updatePortfolio() {
-  const prices = { AVD: 0.5, BTC: 27000, ETH: 1800 };
-  document.getElementById('balanceAVD').innerText = balances.AVD.toFixed(2) + " AVD";
-  document.getElementById('balanceBTC').innerText = balances.BTC.toFixed(4) + " BTC";
-  document.getElementById('balanceETH').innerText = balances.ETH.toFixed(2) + " ETH";
-  document.getElementById('stakedAVD').innerText = staked.AVD.toFixed(2) + " AVD";
-  document.getElementById('stakingRewards').innerText = staked.rewards.toFixed(2) + " AVD";
-
-  const totalUSD = balances.AVD*prices.AVD + balances.BTC*prices.BTC + balances.ETH*prices.ETH;
-  document.getElementById('totalUSD').innerText = "$" + totalUSD.toFixed(2);
-}
-updatePortfolio();
-
-// --- Dummy transactions table ---
-let transactions = [
-  { type: 'Swap', token: 'AVD', amount: 100, time: '12:00 PM', status: 'Completed', reward: 0 },
-  { type: 'Deposit', token: 'BTC', amount: 0.01, time: '1:30 PM', status: 'Pending', reward: 0 },
-  { type: 'Withdraw', token: 'ETH', amount: 0.5, time: '2:15 PM', status: 'Completed', reward: 0 },
-  { type: 'Swap', token: 'AVD', amount: 50, time: '3:00 PM', status: 'Completed', reward: 0 }
-];
-
-// --- Update transactions table ---
-function updateTransactions() {
-  const tbody = document.getElementById('txBody');
-  tbody.innerHTML = '';
-  transactions.forEach(tx => {
-    const row = `<tr>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.type}</td>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.token}</td>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.amount}</td>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.time}</td>
-      <td style="padding:8px; border-bottom:1px solid #0ff;">${tx.status} ${tx.reward > 0 ? '(+'+tx.reward.toFixed(2)+' AVD reward)' : ''}</td>
-    </tr>`;
-    tbody.innerHTML += row;
-  });
-}
-updateTransactions();
-
-// --- Claim rewards button ---
-function claimRewards() {
-  alert(`Claimed ${staked.rewards.toFixed(2)} AVD rewards!`);
-  balances.AVD += staked.rewards; // add to main balance
-  staked.rewards = 0;
-  updatePortfolio();
-}
-
-// --- Action-linked rewards for Swap/Deposit/Withdraw ---
-function addTransaction(type, token, amount) {
-  const rewardBonus = 0.1 * amount; // 10% of amount as reward bonus
-  if(type === 'Swap' || type === 'Deposit' || type === 'Withdraw') {
-    staked.rewards += rewardBonus;
-  }
-
-  const now = new Date();
-  const timeStr = now.getHours() + ':' + now.getMinutes().toString().padStart(2,'0');
-  transactions.unshift({ type, token, amount, time: timeStr, status:'Completed', reward: rewardBonus });
-  updateTransactions();
-  updatePortfolio();
-}
-
-// --- Hook action-linked rewards to buttons ---
-document.querySelectorAll('.trade-box button').forEach(btn => {
-  const actionType = btn.parentElement.querySelector('h4').innerText;
-  btn.addEventListener('click', () => {
-    const token = btn.parentElement.querySelector('select').value;
-    const amount = parseFloat(btn.parentElement.querySelector('input').value) || 0;
-    if(amount > 0) addTransaction(actionType, token, amount);
-  });
-});
-</script>
-
-<!-- Deposit & Withdraw Panel -->
-<div class="card" id="walletActions" style="margin-top:20px;">
-  <h3>Wallet Actions</h3>
-  <p>Deposit or withdraw your AVD tokens.</p>
-  
-  <!-- Deposit -->
-  <div style="margin-top:10px;">
-    <button class="btn" id="depositBtn">Deposit</button>
-    <div id="depositInfo" style="display:none; margin-top:5px; padding:10px; background:#0ff0; border-radius:10px;">
-      <p><strong>Deposit Address:</strong> <span id="depositAddress">AVODA123XYZABC</span></p>
-      <small>Copy this address to your wallet to deposit.</small>
-      <button class="btn" onclick="copyDeposit()">Copy Address</button>
-    </div>
-  </div>
-
-  <!-- Withdraw -->
-  <div style="margin-top:20px;">
-    <button class="btn" id="withdrawBtn">Withdraw</button>
-    <div id="withdrawInfo" style="display:none; margin-top:5px; padding:10px; background:#f0f; border-radius:10px;">
-      <label>Amount to withdraw:</label>
-      <input type="number" id="withdrawAmount" placeholder="0.00 AVD" style="width:100px; margin-left:10px;">
-      <button class="btn" onclick="confirmWithdraw()">Confirm</button>
-    </div>
-  </div>
-</div>
-
-<script>
-// Deposit toggle
-document.getElementById('depositBtn').addEventListener('click', function() {
-  const info = document.getElementById('depositInfo');
-  info.style.display = info.style.display === 'none' ? 'block' : 'none';
-});
-
-// Withdraw toggle
-document.getElementById('withdrawBtn').addEventListener('click', function() {
-  const info = document.getElementById('withdrawInfo');
-  info.style.display = info.style.display === 'none' ? 'block' : 'none';
-});
-
-// Copy deposit address
-function copyDeposit() {
-  const addr = document.getElementById('depositAddress').innerText;
-  navigator.clipboard.writeText(addr);
-  alert('Deposit address copied!');
-}
-
-// Confirm withdraw (dummy, no real money)
-function confirmWithdraw() {
-  const amount = parseFloat(document.getElementById('withdrawAmount').value);
-  if(isNaN(amount) || amount <= 0) {
-    alert('Enter a valid amount!');
-    return;
-  }
-  alert(`Withdrawal of ${amount.toFixed(2)} AVD requested! (Simulation)`);
-  document.getElementById('withdrawAmount').value = '';
-}
-</script>
-  
-<!-- Live News Section -->
-<section class="dashboard" id="newsSection">
-  <div class="card" id="newsCard">
-    <h3>Crypto News</h3>
-    <p>Latest blockchain and crypto updates:</p>
-    <ul id="newsList" style="margin-top:10px; list-style:none; padding-left:0;"></ul>
-  </div>
-</section>
-
-<script>
-// Example live news headlines
-const newsHeadlines = [
-  "AVODA token hits new ATH!",
-  "Ethereum network upgrade successful.",
-  "Bitcoin trading volume surges 12% in 24h.",
-  "New DeFi project launches on AVODA DEX.",
-  "Global crypto market cap reaches $2T."
-];
-
-// Function to rotate news every 5 seconds
-let newsIndex = 0;
-function updateNews() {
-  const newsList = document.getElementById('newsList');
-  newsList.innerHTML = '';
-  const headline = document.createElement('li');
-  headline.innerText = newsHeadlines[newsIndex];
-  headline.style.padding = "5px 0";
-  newsList.appendChild(headline);
-  newsIndex = (newsIndex + 1) % newsHeadlines.length;
-}
-
-// Start rotation
-updateNews();
-setInterval(updateNews, 5000);
-</script>
-
-<!-- User Profile & Settings Modal -->
-<div id="profileModal" class="modal">
-  <div class="modal-content">
-    <span class="close-modal" onclick="closeProfile()">&times;</span>
-    <h2>AVODA Profile</h2>
-    <div class="profile-section">
-      <label>Username:</label>
-      <input type="text" id="username" placeholder="Enter username">
-    </div>
-    <div class="profile-section">
-      <label>Email:</label>
-      <input type="email" id="email" placeholder="Enter email">
-    </div>
-    <div class="profile-section">
-      <label>Password:</label>
-      <input type="password" id="password" placeholder="New password">
-    </div>
-    <div class="profile-section">
-      <label>Theme:</label>
-      <select id="themeSelect" onchange="changeTheme(this.value)">
-        <option value="dark">Dark</option>
-        <option value="light">Light</option>
-      </select>
-    </div>
-    <div class="profile-section">
-      <label>Wallet Linked:</label>
-      <span id="walletStatus">Not linked</span>
-      <button onclick="linkWallet()">Link Wallet</button>
-    </div>
-    <div class="profile-section">
-      <label>Notifications:</label>
-      <input type="checkbox" id="notifyTx" checked> Transaction alerts
-      <input type="checkbox" id="notifyNews"> News updates
-    </div>
-    <button class="btn" onclick="saveProfile()">Save Changes</button>
-  </div>
-</div>
-
-<style>
-/* Modal Styles */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 2000;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.7);
-  justify-content: center; align-items: center;
-}
-.modal-content {
-  background: #0a0f23;
-  padding: 30px;
-  border-radius: 20px;
-  width: 400px;
-  max-width: 90%;
-  box-shadow: 0 0 25px #0ff;
-  color: #fff;
-  position: relative;
-}
-.close-modal {
-  position: absolute;
-  top: 15px; right: 20px;
-  font-size: 24px;
-  cursor: pointer;
-  color: #ff09ff;
-}
-.modal-content h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #0ff;
-}
-.profile-section {
-  margin-bottom: 15px;
-  display: flex;
-  flex-direction: column;
-}
-.profile-section label {
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #0ff;
-}
-.profile-section input, .profile-section select {
-  padding: 8px;
-  border-radius: 10px;
-  border: none;
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-}
-.profile-section input:focus, .profile-section select:focus {
-  outline: none;
-  box-shadow: 0 0 10px #ff09ff;
-}
-.btn {
-  width: 100%;
-  padding: 12px;
-  background: #0ff;
-  color: #000;
-  font-weight: bold;
-  border-radius: 30px;
-  cursor: pointer;
-  margin-top: 15px;
-  box-shadow: 0 0 20px #0ff;
-}
-.btn:hover {
-  background: #ff09ff;
-  color: #fff;
-  box-shadow: 0 0 25px #ff09ff;
-}
-</style>
-
-<script>
-// Open & close profile modal
-function openProfile() {
-  document.getElementById('profileModal').style.display = 'flex';
-}
-function closeProfile() {
-  document.getElementById('profileModal').style.display = 'none';
-}
-
-// Save profile (placeholder for real backend)
-function saveProfile() {
-  const username = document.getElementById('username').value;
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const notifyTx = document.getElementById('notifyTx').checked;
-  const notifyNews = document.getElementById('notifyNews').checked;
-
-  alert(`Saved!\nUsername: ${username}\nEmail: ${email}\nNotifications: TX-${notifyTx}, News-${notifyNews}`);
-  closeProfile();
-}
-
-// Theme switcher
-function changeTheme(value) {
-  if(value === 'dark') {
-    document.body.style.background = 'linear-gradient(135deg,#000014,#030B2A,#021F3E)';
-    document.body.style.color = '#fff';
-  } else {
-    document.body.style.background = '#f4f4f4';
-    document.body.style.color = '#000';
-  }
-}
-
-// Wallet link placeholder
-function linkWallet() {
-  document.getElementById('walletStatus').innerText = 'Wallet Linked';
-  alert('Wallet successfully linked (placeholder)');
-}
-
-// Add profile button to nav
-const profileNav = document.createElement('a');
-profileNav.href = '#';
-profileNav.innerText = 'Profile';
-profileNav.onclick = (e) => { e.preventDefault(); openProfile(); };
-document.querySelector('nav').appendChild(profileNav);
-</script>
-
-
-
-  <!-- Animated Price Chart -->
-<section class="dashboard" id="priceChartSection" style="margin-top:20px;">
-  <div class="card" id="priceChartCard">
-    <h3>AVD Price Chart (24h)</h3>
-    <canvas id="priceChart" style="width:100%; height:300px;"></canvas>
-  </div>
-</section>
-
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-// Dummy real-time AVD price data
-let priceData = [];
-let timeLabels = [];
-const maxPoints = 24; // 24 data points (1 per hour)
-
-function addPricePoint() {
-  const now = new Date();
-  const hourLabel = now.getHours() + ":00";
-
-  // Random dummy price around 0.5 USD (replace with real API later)
-  const lastPrice = priceData.length > 0 ? priceData[priceData.length - 1] : 0.5;
-  const newPrice = (lastPrice + (Math.random() - 0.5) * 0.02).toFixed(4);
-
-  if(priceData.length >= maxPoints) {
-    priceData.shift();
-    timeLabels.shift();
-  }
-
-  priceData.push(newPrice);
-  timeLabels.push(hourLabel);
-
-  myChart.update();
-}
-
-// Create Chart.js line chart
-const ctx = document.getElementById('priceChart').getContext('2d');
-const myChart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: timeLabels,
-    datasets: [{
-      label: 'AVD Price ($)',
-      data: priceData,
-      borderColor: '#0ff',
-      backgroundColor: 'rgba(0,255,255,0.2)',
-      tension: 0.3,
-      pointRadius: 3,
-      pointBackgroundColor: '#0ff'
-    }]
-  },
-  options: {
-    responsive: true,
-    animation: {
-      duration: 800
-    },
-    scales: {
-      x: {
-        grid: { color: '#222' },
-        ticks: { color: '#0ff' }
-      },
-      y: {
-        grid: { color: '#222' },
-        ticks: { color: '#0ff' }
-      }
-    },
-    plugins: {
-      legend: { labels: { color: '#0ff' } }
-    }
-  }
-});
-
-// Update chart every 3 seconds
-setInterval(addPricePoint, 3000);
-
-// Initialize with 5 points
-for(let i=0; i<5; i++) addPricePoint();
-</script>
-
-
-  
-<!-- Footer -->
-<footer>
-  <p>© 2025 AVODA Network. Built for the future. | <a href="#">Privacy Policy</a></p>
-</footer>
-
-<!-- Scripts -->
-<script>
-// Particle System
-for(let i=0;i<100;i++){
-  let p=document.createElement('div');
-  p.className='particle';
-  let size=Math.random()*6+2;
-  p.style.width=size+'px';
-  p.style.height=size+'px';
-  p.style.left=Math.random()*window.innerWidth+'px';
-  p.style.top=Math.random()*window.innerHeight+'px';
-  p.style.background='hsl('+Math.random()*360+', 100%, 60%)';
-  p.style.animationDuration=(5+Math.random()*10)+'s';
-  document.getElementById('particles').appendChild(p);
-}
-
-// Scroll to section
-function scrollToSection(id){
-  document.getElementById(id).scrollIntoView({behavior:'smooth'});
-}
-
-// Sound handling
-var bgAudio=document.getElementById('bgSound');
-var soundEnabled=false;
-function toggleSound(){
-  soundEnabled=!soundEnabled;
-  if(soundEnabled){bgAudio.play();}
-  else{bgAudio.pause();}
-}
-
-function playSound(type){
-  if(!soundEnabled) return;
-  let audio=new Audio();
-  if(type==='swap') audio.src='https://freesound.org/data/previews/170/170664_2437358-lq.mp3';
-  else if(type==='deposit') audio.src='https://freesound.org/data/previews/331/331912_3248244-lq.mp3';
-  else if(type==='withdraw') audio.src='https://freesound.org/data/previews/331/331912_3248244-lq.mp3';
-  audio.play();
-}
-
-// Wallet modal functions
-function openWallet(){document.getElementById('walletModal').style.display='flex';}
-function closeWallet(){document.getElementById('walletModal').style.display='none';}
-
-// Dummy live price updates
-function updatePrices(){
-  const prices={
-    BTC: (27000 + Math.random()*1000).toFixed(2),
-    ETH: (1800 + Math.random()*50).toFixed(2),
-    BNB: (320 + Math.random()*10).toFixed(2),
-    XRP: (0.50 + Math.random()*0.05).toFixed(2),
-    SOL: (22 + Math.random()*1).toFixed(2),
-    AVD: (0.50 + Math.random()*0.05).toFixed(2)
-  };
-  document.querySelectorAll('.price-item').forEach(el=>{
-    const coin=el.querySelector('h4').innerText;
-    el.querySelector('p').innerText='$'+prices[coin];
-  });
-}
-setInterval(updatePrices,3000);
-updatePrices();
-</script>
-
-  <!-- Alerts Container -->
-<div id="alertContainer" style="position:fixed; top:20px; right:20px; z-index:2000;"></div>
-
-<script>
-// Function to create alert
-function showAlert(message, type="info") {
-    const alertBox = document.createElement('div');
-    alertBox.innerText = message;
-    alertBox.style.background = type === "error" ? "#ff4c4c" : type === "success" ? "#4cff7f" : "#0ff";
-    alertBox.style.color = "#000";
-    alertBox.style.padding = "10px 15px";
-    alertBox.style.marginTop = "10px";
-    alertBox.style.borderRadius = "12px";
-    alertBox.style.boxShadow = "0 0 15px rgba(0,255,255,0.5)";
-    alertBox.style.fontWeight = "bold";
-    alertBox.style.cursor = "pointer";
-    alertBox.style.transition = "all 0.5s ease";
-    
-    alertBox.onclick = () => alertBox.remove();
-
-    document.getElementById('alertContainer').appendChild(alertBox);
-
-    // Auto remove after 3 seconds
-    setTimeout(()=>{ alertBox.remove(); }, 3000);
-}
-
-// Example Usage
-setInterval(()=>{
-    const price = (0.5 + Math.random()*0.05).toFixed(2); // Example AVD price
-    if(price > 0.53) showAlert("AVD price spiked! $" + price, "success");
-    else if(price < 0.48) showAlert("AVD price dropped! $" + price, "error");
-}, 5000);
-
-// You can call showAlert("message","type") anytime in other parts of your code
-</script>
-
+    <script>
+        // --- Initialization ---
+        lucide.createIcons();
+        let provider, signer, address;
+
+        // --- Wallet Logic ---
+        async function connectWallet() {
+            if (window.ethereum) {
+                try {
+                    // Initialize Ethers v6
+                    provider = new ethers.BrowserProvider(window.ethereum);
+                    const accounts = await provider.send("eth_requestAccounts", []);
+                    signer = await provider.getSigner();
+                    address = await signer.getAddress();
+
+                    updateUI(address);
+                } catch (error) {
+                    console.error("User rejected connection", error);
+                }
+            } else {
+                alert("Please install MetaMask or a Web3 wallet!");
+            }
+        }
+
+        async function updateUI(addr) {
+            const shortAddr = `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
+            document.getElementById('wallet-status').innerText = `Account: ${shortAddr}`;
+            document.getElementById('connectBtn').innerText = "Connected";
+            
+            // Get Real Balance
+            const balance = await provider.getBalance(addr);
+            const ethBalance = ethers.formatEther(balance);
+            document.getElementById('balance-display').innerText = parseFloat(ethBalance).toFixed(4);
+            
+            // Enable Swap
+            const swapBtn = document.getElementById('swapBtn');
+            swapBtn.disabled = false;
+            swapBtn.innerText = "Execute Swap";
+
+            // Network Info
+            const network = await provider.getNetwork();
+            document.getElementById('network-info').innerText = `Network: ${network.name.toUpperCase()}`;
+        }
+
+        // Listen for account changes
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if(accounts.length > 0) connectWallet();
+                else location.reload();
+            });
+        }
+
+        // --- DEX Logic (Simulated Math) ---
+        function calculateSwap() {
+            const input = document.getElementById('inputAmount').value;
+            const rate = 2850.42; // Mock price ETH/AVODA
+            if(input > 0) {
+                document.getElementById('outputAmount').value = (input * rate).toFixed(2);
+            } else {
+                document.getElementById('outputAmount').value = "";
+            }
+        }
+
+        async function executeSwap() {
+            const btn = document.getElementById('swapBtn');
+            btn.innerText = "Processing Transaction...";
+            btn.disabled = true;
+
+            // In a real app, you would call a Smart Contract function here:
+            // await routerContract.swapExactETHForTokens(...)
+            
+            setTimeout(() => {
+                alert("Transaction Simulated: Tokens Swapped Successfully!");
+                btn.innerText = "Execute Swap";
+                btn.disabled = false;
+            }, 2000);
+        }
+
+        // --- Chart Logic ---
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['12am', '4am', '8am', '12pm', '4pm', '8pm'],
+                datasets: [{
+                    data: [2100, 2300, 2200, 2700, 2600, 2850],
+                    borderColor: '#00f2ff',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    fill: true,
+                    backgroundColor: (context) => {
+                        const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 400);
+                        gradient.addColorStop(0, 'rgba(0, 242, 255, 0.2)');
+                        gradient.addColorStop(1, 'rgba(0, 242, 255, 0)');
+                        return gradient;
+                    }
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+                    y: { display: false }
+                }
+            }
+        });
+    </script>
 </body>
-      </html>
-
-
+</html>
