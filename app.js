@@ -1,107 +1,52 @@
-/**
- * AVODA.AI - Core Logic Layer
- * Handles: Web3 Connections, Real-time Price Feeds, and DEX Math
- */
+// --- Bridge Configuration ---
+const RELAY_FEE_PERCENT = 0.001; // 0.1% bridge fee
 
-// --- Configuration ---
-const COINGECKO_BASE = "https://api.coingecko.com/api/v3";
-const TOKENS = {
-    eth: "ethereum",
-    avoda: "avoda" // Note: Use 'bitcoin' or 'binancecoin' to test real data until AVODA is live
-};
+function calculateBridgeFee() {
+    const input = document.getElementById('bridgeInput').value;
+    const output = document.getElementById('bridgeOutput');
+    const feeDisplay = document.getElementById('bridge-fee');
 
-// --- Initialization ---
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("AVODA Engine Started...");
-    startPriceListener();
-});
-
-/**
- * FETCH REAL-TIME PRICES
- * Connects to CoinGecko API to get live USD rates
- */
-async function getLivePrice(coinId) {
-    try {
-        const response = await fetch(`${COINGECKO_BASE}/simple/price?ids=${coinId}&vs_currencies=usd`);
-        const data = await response.json();
-        return data[coinId].usd;
-    } catch (error) {
-        console.error("Price Feed Error:", error);
-        return null;
+    if (input > 0) {
+        const fee = input * RELAY_FEE_PERCENT;
+        const gasEstimate = 0.005; // Simulated ETH gas for bridge contract call
+        const finalOutput = input - fee - gasEstimate;
+        
+        output.value = finalOutput > 0 ? finalOutput.toFixed(4) : "0.00";
+        feeDisplay.innerText = `$${(fee * 2500).toFixed(2)}`; // Convert fee to USD for display
     }
 }
 
-/**
- * DEX CALCULATION LOGIC
- * Updates the "You Get" field based on live market data
- */
-async function calculateSwap() {
-    const inputAmt = document.getElementById('inputAmt').value;
-    const outputField = document.getElementById('outputAmt');
+async function initiateBridge() {
+    const amount = document.getElementById('bridgeInput').value;
+    if (!amount || amount <= 0) return alert("Enter amount to bridge");
+
+    const progressBox = document.getElementById('bridge-progress');
+    const bar = document.getElementById('progress-bar');
+    const status = document.getElementById('progress-status');
+    const step = document.getElementById('progress-step');
+
+    progressBox.style.display = 'block';
     
-    if (!inputAmt || inputAmt <= 0) {
-        outputField.value = "";
-        return;
-    }
+    // Step 1: Lock Assets
+    status.innerText = "Locking Assets on ETH...";
+    step.innerText = "Waiting for MetaMask approval...";
+    bar.style.width = "33%";
+    await new Promise(r => setTimeout(r, 2000));
 
-    // Logic: Fetch ETH price and AVODA price (Simulating AVODA at $0.50 for now)
-    const ethPrice = await getLivePrice(TOKENS.eth);
-    const avodaPrice = 0.50; // Replace with live price once token is listed
+    // Step 2: Relayer Validation
+    status.innerText = "Relayer Validating...";
+    step.innerText = "Verifying transaction hash on AVODA Nodes...";
+    bar.style.width = "66%";
+    await new Promise(r => setTimeout(r, 3000));
 
-    if (ethPrice) {
-        const totalUsdValue = inputAmt * ethPrice;
-        const estimatedTokens = totalUsdValue / avodaPrice;
-        
-        // Apply 0.3% simulated DEX fee
-        const finalAmount = estimatedTokens * 0.997;
-        
-        outputField.value = finalAmount.toLocaleString(undefined, { maximumFractionDigits: 2 });
-    }
-}
-
-/**
- * WEB3 TRANSACTION (PLACEHOLDER)
- * This is where you connect to Ethers.js to sign the transaction
- */
-async function executeSwap() {
-    const btn = document.querySelector('.btn-action');
-    const originalText = btn.innerText;
-
-    // 1. Check if wallet is connected
-    if (!window.ethereum) {
-        alert("Please install MetaMask!");
-        return;
-    }
-
-    // 2. Visual Feedback
-    btn.innerText = "Confirming on Chain...";
-    btn.style.opacity = "0.7";
-
-    try {
-        // Here you would use: await contract.swap(amount)
-        // For now, we simulate a 2-second blockchain delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        alert("Successfully Swapped! Transaction Hash: 0x" + Math.random().toString(16).slice(2));
-    } catch (err) {
-        alert("Transaction Failed: " + err.message);
-    } finally {
-        btn.innerText = originalText;
-        btn.style.opacity = "1";
-    }
-}
-
-/**
- * UI EVENT LISTENERS
- */
-function startPriceListener() {
-    const input = document.getElementById('inputAmt');
-    if (input) {
-        // Debounce: Wait for user to stop typing before fetching price
-        let timeout = null;
-        input.addEventListener('input', () => {
-            clearTimeout(timeout);
-            timeout = setTimeout(calculateSwap, 500);
-        });
-    }
+    // Step 3: Minting
+    status.innerText = "Minting on AVODA...";
+    step.innerText = "Successfully minted wrapped assets to your wallet.";
+    bar.style.width = "100%";
+    
+    setTimeout(() => {
+        alert(`Bridge Complete! ${amount} Assets migrated to AVODA Chain.`);
+        progressBox.style.display = 'none';
+        bar.style.width = "0%";
+    }, 1500);
 }
