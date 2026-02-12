@@ -153,18 +153,64 @@
             </div>
         </section>
 
-        <section id="view-discover" class="view">
-            <div class="glass-card" style="display:flex; align-items:center; gap:15px; padding:1rem 2rem;">
-                <i data-lucide="search" style="color:var(--text-dim)"></i>
-                <input type="text" placeholder="Search DApps or enter URL" style="background:transparent; border:none; color:white; width:100%; outline:none; font-size:1rem;">
+        <section id="view-bridge" class="view">
+    <div class="swap-container">
+        <div class="glass-card" style="border-color: var(--accent);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <h3>AVODA Quantum Bridge</h3>
+                <div class="tag" style="color:var(--success)">Relayer: Online</div>
             </div>
-            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:1.5rem;">
-                <div class="asset-item"><strong>PancakeSwap</strong><i data-lucide="chevron-right"></i></div>
-                <div class="asset-item"><strong>Uniswap Hub</strong><i data-lucide="chevron-right"></i></div>
-                <div class="asset-item"><strong>Lido Staking</strong><i data-lucide="chevron-right"></i></div>
-                <div class="asset-item"><strong>AVODA Farm</strong><i data-lucide="chevron-right"></i></div>
+
+            <div class="swap-input-box">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <small style="color:var(--text-dim)">From Network</small>
+                    <small class="tag" style="cursor:pointer" onclick="switchChain('ETH')">Ethereum</small>
+                </div>
+                <input type="number" id="bridgeInput" placeholder="0.0" oninput="calculateBridgeFee()">
             </div>
-        </section>
+
+            <div style="text-align:center; padding:1.5rem 0;">
+                <div style="display:flex; align-items:center; justify-content:center; gap:20px;">
+                    <div style="width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent);"></div>
+                    <div style="width:100px; height:2px; background:linear-gradient(90deg, var(--accent), transparent);"></div>
+                    <i data-lucide="zap" style="color:var(--accent)"></i>
+                    <div style="width:100px; height:2px; background:linear-gradient(270deg, var(--accent), transparent);"></div>
+                    <div style="width:10px; height:10px; border-radius:50%; background:var(--accent);"></div>
+                </div>
+            </div>
+
+            <div class="swap-input-box">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <small style="color:var(--text-dim)">To Network</small>
+                    <small class="tag" style="color:var(--accent)">AVODA Mainnet</small>
+                </div>
+                <input type="number" id="bridgeOutput" readonly placeholder="Auto-calculated">
+            </div>
+
+            <div style="margin-top:1.5rem; padding:1.2rem; background:rgba(255,255,255,0.02); border-radius:20px; font-size:0.85rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <span style="color:var(--text-dim)">Bridge Fee (Gas + Relayer)</span>
+                    <span id="bridge-fee">$0.00</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-dim)">Est. Time</span>
+                    <span>~ 2.5 Minutes</span>
+                </div>
+            </div>
+
+            <button class="btn-action" onclick="initiateBridge()">Transfer Assets</button>
+        </div>
+
+        <div id="bridge-progress" class="glass-card" style="display:none; margin-top:1.5rem; border-color:var(--accent);">
+            <h4 id="progress-status">Initiating...</h4>
+            <div style="width:100%; height:6px; background:var(--border); border-radius:10px; margin:15px 0; overflow:hidden;">
+                <div id="progress-bar" style="width:0%; height:100%; background:var(--grad); transition:0.5s;"></div>
+            </div>
+            <p id="progress-step" style="font-size:0.75rem; color:var(--text-dim);">Awaiting signature...</p>
+        </div>
+    </div>
+</section>
+
     </main>
 </div>
 
