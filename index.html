@@ -1,121 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AVODA DEX Wallet v1</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AVODA DEX Wallet Demo</title>
+<style>
+body { font-family: Arial; background: #f0f2f5; display: flex; justify-content: center; padding-top: 30px; }
+.container { background: white; padding: 20px; border-radius: 10px; width: 380px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; margin-bottom: 20px; }
+button { background: #3b82f6; color: white; border: none; padding: 8px 15px; margin: 5px 0; border-radius: 5px; cursor: pointer; width: 100%; }
+button:hover { background: #2563eb; }
+input { padding: 5px; width: 100%; margin: 5px 0 10px; border-radius: 5px; border: 1px solid #ccc; }
+p { margin: 5px 0; word-break: break-all; }
+hr { margin: 10px 0; }
+</style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <h1>AVODA DEX Wallet</h1>
-        <div class="nav-links">
-            <button onclick="showSection('dashboard')">Dashboard</button>
-            <button onclick="showSection('wallet')">Wallet</button>
-            <button onclick="showSection('swap')">Swap</button>
-            <button onclick="showSection('insights')">AI Insights</button>
-            <button onclick="showSection('settings')">Settings</button>
-        </div>
-        <button id="themeToggle">Dark/Light</button>
-    </nav>
+<div class="container">
+<h2>AVODA DEX Wallet Demo</h2>
 
-    <!-- Dashboard / Portfolio -->
-    <section id="dashboard" class="section">
-        <h2>Portfolio Overview</h2>
-        <canvas id="portfolioChart"></canvas>
-        <div class="balance">
-            <p>Total Balance: $<span id="totalBalance">0</span> USD</p>
-        </div>
-        <h3>Recent Transactions</h3>
-        <table id="transactionsTable">
-            <thead>
-                <tr>
-                    <th>Token</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </section>
+<!-- Wallet Section -->
+<button onclick="createWallet()">Create Wallet</button>
+<button onclick="importWallet()">Import Wallet</button>
+<div id="walletSection"></div>
+<hr>
 
-    <!-- Wallet Management -->
-    <section id="wallet" class="section hidden">
-        <h2>Wallet Management</h2>
-        <div class="wallet-actions">
-            <button onclick="createWallet()">Create Wallet</button>
-            <button onclick="importWallet()">Import Wallet</button>
-            <button onclick="connectWallet()">Connect Wallet</button>
-        </div>
-        <div id="walletInfo" class="wallet-info">
-            <p>Address: <span id="walletAddress">Not connected</span></p>
-            <button onclick="copyAddress()">Copy Address</button>
-            <p>Balances:</p>
-            <ul id="walletBalances">
-                <li>AVODA: 0</li>
-                <li>ETH: 0</li>
-                <li>USDT: 0</li>
-            </ul>
-        </div>
-    </section>
+<!-- Portfolio -->
+<h3>Portfolio</h3>
+<div id="portfolioSection">
+<p>AVODA: 0</p>
+<p>USDT: 0</p>
+<p>ETH: 0</p>
+</div>
+<hr>
 
-    <!-- DEX Swap -->
-    <section id="swap" class="section hidden">
-        <h2>Token Swap</h2>
-        <div class="swap-container">
-            <label>From:</label>
-            <select id="fromToken">
-                <option value="AVODA">AVODA</option>
-                <option value="ETH">ETH</option>
-                <option value="USDT">USDT</option>
-            </select>
-            <input type="number" id="fromAmount" placeholder="Amount" value="0">
+<!-- Send / Receive -->
+<h3>Send / Receive</h3>
+<input id="sendAddress" placeholder="Recipient Address">
+<input id="sendAmount" placeholder="Amount">
+<button onclick="sendTokens()">Send Tokens</button>
+<button onclick="receiveTokens()">Receive Tokens (QR)</button>
+<div id="qrSection"></div>
+<hr>
 
-            <label>To:</label>
-            <select id="toToken">
-                <option value="ETH">ETH</option>
-                <option value="USDT">USDT</option>
-                <option value="AVODA">AVODA</option>
-            </select>
-            <input type="number" id="toAmount" placeholder="Amount" value="0" readonly>
+<!-- Swap -->
+<h3>Swap</h3>
+<select id="fromToken">
+<option value="AVODA">AVODA</option>
+<option value="USDT">USDT</option>
+<option value="ETH">ETH</option>
+</select>
+<select id="toToken">
+<option value="USDT">USDT</option>
+<option value="AVODA">AVODA</option>
+<option value="ETH">ETH</option>
+</select>
+<input id="swapAmount" placeholder="Amount">
+<button onclick="swapTokens()">Swap</button>
+<div id="swapSection"></div>
+<hr>
 
-            <p>Estimated Fee: <span id="txFee">0.01</span> ETH</p>
-            <button onclick="swapTokens()">Swap</button>
-        </div>
-    </section>
+<!-- Transaction History -->
+<h3>Transactions</h3>
+<div id="txHistory"></div>
 
-    <!-- AI Insights -->
-    <section id="insights" class="section hidden">
-        <h2>AI Insights & Risk Alerts</h2>
-        <ul id="insightsList">
-            <li>Risk Alert: No suspicious tokens detected.</li>
-            <li>Smart Swap Suggestion: Swap AVODA → USDT for better balance.</li>
-            <li>Liquidity Opportunity: AVODA staking available.</li>
-        </ul>
-    </section>
+</div>
 
-    <!-- Settings -->
-    <section id="settings" class="section hidden">
-        <h2>Settings</h2>
-        <label>Theme:</label>
-        <select id="themeSelect" onchange="changeTheme(this.value)">
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-        </select>
-        <h3>Wallet Labels by Country</h3>
-        <ul>
-            <li>Myanmar: Avoda</li>
-            <li>Thailand: Dona</li>
-            <li>Cambodia: Wana</li>
-            <li>Laos: Nai X</li>
-            <li>Vietnam: Aria</li>
-            <li>Malaysia: Super V</li>
-        </ul>
-    </section>
+<script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script>
+// === Fake Wallet ===
+let wallet = null;
+let balances = { AVODA: 1000, USDT: 500, ETH: 2 };
+let transactions = [];
 
-    <script src="main.js"></script>
+function createWallet() {
+    wallet = { address: '0x' + Math.random().toString(36).substring(2, 15) };
+    document.getElementById('walletSection').innerHTML = `<p><strong>Wallet Address:</strong> ${wallet.address}</p>`;
+    updatePortfolio();
+}
+
+function importWallet() {
+    const addr = prompt("Enter wallet address:");
+    if (!addr) return;
+    wallet = { address: addr };
+    document.getElementById('walletSection').innerHTML = `<p><strong>Wallet Address:</strong> ${wallet.address}</p>`;
+    updatePortfolio();
+}
+
+// === Portfolio ===
+function updatePortfolio() {
+    document.getElementById('portfolioSection').innerHTML = `
+    <p>AVODA: ${balances.AVODA}</p>
+    <p>USDT: ${balances.USDT}</p>
+    <p>ETH: ${balances.ETH}</p>
+    `;
+}
+
+// === Send / Receive ===
+function sendTokens() {
+    const addr = document.getElementById('sendAddress').value;
+    const amount = parseFloat(document.getElementById('sendAmount').value);
+    const token = 'AVODA'; // default token for demo
+
+    if (!wallet || !addr || !amount || balances[token] < amount) {
+        alert('Invalid input or insufficient balance');
+        return;
+    }
+
+    balances[token] -= amount;
+    transactions.push(`Sent ${amount} ${token} to ${addr}`);
+    updatePortfolio();
+    updateTxHistory();
+}
+
+function receiveTokens() {
+    if (!wallet) { alert('Create wallet first'); return; }
+    const qrDiv = document.getElementById('qrSection');
+    qrDiv.innerHTML = '';
+    QRCode.toCanvas(wallet.address, { width: 150 }, function(err, canvas) {
+        if(err) console.error(err);
+        qrDiv.appendChild(canvas);
+    });
+}
+
+// === Swap ===
+function swapTokens() {
+    const from = document.getElementById('fromToken').value;
+    const to = document.getElementById('toToken').value;
+    const amount = parseFloat(document.getElementById('swapAmount').value);
+
+    if (from === to) { alert('Select different tokens'); return; }
+    if (balances[from] < amount) { alert('Insufficient balance'); return; }
+
+    const rate = Math.random() * (1.2 - 0.8) + 0.8; // fake exchange rate
+    const received = parseFloat((amount * rate).toFixed(2));
+
+    balances[from] -= amount;
+    balances[to] += received;
+
+    transactions.push(`Swapped ${amount} ${from} → ${received} ${to}`);
+    updatePortfolio();
+    updateTxHistory();
+    document.getElementById('swapSection').innerText = `You received ${received} ${to} (rate ${rate.toFixed(2)})`;
+}
+
+// === Transaction History ===
+function updateTxHistory() {
+    const div = document.getElementById('txHistory');
+    div.innerHTML = '';
+    transactions.slice().reverse().forEach(tx => {
+        const p = document.createElement('p');
+        p.innerText = tx;
+        div.appendChild(p);
+    });
+}
+</script>
 </body>
-            </html>
+</html>
