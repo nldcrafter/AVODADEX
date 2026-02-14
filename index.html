@@ -3,47 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AVODA DEX Wallet Demo</title>
+<title>AVODA Premium Wallet Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-body { font-family: Arial; background: #f0f2f5; display: flex; justify-content: center; padding-top: 30px; }
-.container { background: white; padding: 20px; border-radius: 10px; width: 380px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-h2 { text-align: center; margin-bottom: 20px; }
-button { background: #3b82f6; color: white; border: none; padding: 8px 15px; margin: 5px 0; border-radius: 5px; cursor: pointer; width: 100%; }
-button:hover { background: #2563eb; }
-input { padding: 5px; width: 100%; margin: 5px 0 10px; border-radius: 5px; border: 1px solid #ccc; }
-p { margin: 5px 0; word-break: break-all; }
-hr { margin: 10px 0; }
+body { font-family: 'Inter', sans-serif; margin:0; background: linear-gradient(135deg,#0f2027,#203a43,#2c5364); display:flex; justify-content:center; align-items:flex-start; padding-top:40px; color:#fff;}
+.container { background:#1f2937; padding:30px; border-radius:20px; width:400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);}
+h2,h3{margin:10px 0;}
+button{width:100%; padding:12px; border:none; border-radius:10px; cursor:pointer; font-weight:600; margin:8px 0; transition:0.3s;}
+button:hover{opacity:0.9;}
+.btn-blue{background:linear-gradient(90deg,#4f46e5,#3b82f6);}
+.btn-green{background:linear-gradient(90deg,#10b981,#34d399);}
+.btn-red{background:linear-gradient(90deg,#ef4444,#f87171);}
+input{width:100%; padding:10px; margin:5px 0 15px; border-radius:8px; border:none;}
+.card{background:#111827; padding:15px; border-radius:15px; margin:10px 0; box-shadow:0 10px 25px rgba(0,0,0,0.4);}
+.tx-history p{background:#111827; padding:8px; border-radius:10px; margin:5px 0;}
 </style>
 </head>
 <body>
 <div class="container">
-<h2>AVODA DEX Wallet Demo</h2>
+<h2>AVODA Premium Wallet</h2>
 
 <!-- Wallet Section -->
-<button onclick="createWallet()">Create Wallet</button>
-<button onclick="importWallet()">Import Wallet</button>
-<div id="walletSection"></div>
-<hr>
+<button class="btn-blue" onclick="connectWallet()">Connect MetaMask</button>
+<button class="btn-green" onclick="createWallet()">Create Wallet</button>
+<button class="btn-green" onclick="importWallet()">Import Wallet</button>
+<div id="walletSection" class="card"></div>
 
-<!-- Portfolio -->
 <h3>Portfolio</h3>
-<div id="portfolioSection">
+<div id="portfolioSection" class="card">
 <p>AVODA: 0</p>
 <p>USDT: 0</p>
 <p>ETH: 0</p>
 </div>
-<hr>
 
-<!-- Send / Receive -->
 <h3>Send / Receive</h3>
 <input id="sendAddress" placeholder="Recipient Address">
 <input id="sendAmount" placeholder="Amount">
-<button onclick="sendTokens()">Send Tokens</button>
-<button onclick="receiveTokens()">Receive Tokens (QR)</button>
-<div id="qrSection"></div>
-<hr>
+<button class="btn-blue" onclick="sendTokens()">Send Tokens</button>
+<button class="btn-blue" onclick="receiveTokens()">Show QR Code</button>
+<div id="qrSection" class="card"></div>
 
-<!-- Swap -->
 <h3>Swap</h3>
 <select id="fromToken">
 <option value="AVODA">AVODA</option>
@@ -56,105 +55,122 @@ hr { margin: 10px 0; }
 <option value="ETH">ETH</option>
 </select>
 <input id="swapAmount" placeholder="Amount">
-<button onclick="swapTokens()">Swap</button>
-<div id="swapSection"></div>
-<hr>
+<button class="btn-blue" onclick="swapTokens()">Swap Tokens</button>
+<div id="swapSection" class="card"></div>
 
-<!-- Transaction History -->
-<h3>Transactions</h3>
-<div id="txHistory"></div>
-
+<h3>Transaction History</h3>
+<div id="txHistory" class="tx-history card"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
-// === Fake Wallet ===
+// --- Variables ---
 let wallet = null;
+let signer = null;
+let provider = null;
 let balances = { AVODA: 1000, USDT: 500, ETH: 2 };
 let transactions = [];
 
+// Placeholder testnet token addresses (replace with real testnet AVODA + USDT)
+const AVODA_ADDRESS = '0x0000000000000000000000000000000000000001';
+const USDT_ADDRESS = '0x0000000000000000000000000000000000000002';
+const ERC20_ABI = [
+"function balanceOf(address owner) view returns (uint256)",
+"function transfer(address to, uint amount) returns (bool)"
+];
+
+// --- Wallet Functions ---
+async function connectWallet() {
+  if (!window.ethereum) return alert('Install MetaMask!');
+  try {
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner();
+    const addr = await signer.getAddress();
+    wallet = { address: addr };
+    document.getElementById('walletSection').innerHTML = `<p><strong>Wallet Address:</strong> ${addr}</p>`;
+    await updateBalances();
+  } catch (e) { console.error(e); alert('Connection failed!'); }
+}
+
 function createWallet() {
-    wallet = { address: '0x' + Math.random().toString(36).substring(2, 15) };
-    document.getElementById('walletSection').innerHTML = `<p><strong>Wallet Address:</strong> ${wallet.address}</p>`;
-    updatePortfolio();
+  wallet = { address: '0x'+Math.random().toString(36).substring(2,15) };
+  document.getElementById('walletSection').innerHTML = `<p><strong>Wallet Address:</strong> ${wallet.address}</p>`;
+  updatePortfolio();
 }
 
 function importWallet() {
-    const addr = prompt("Enter wallet address:");
-    if (!addr) return;
-    wallet = { address: addr };
-    document.getElementById('walletSection').innerHTML = `<p><strong>Wallet Address:</strong> ${wallet.address}</p>`;
-    updatePortfolio();
+  const addr = prompt("Enter wallet address:");
+  if (!addr) return;
+  wallet = { address: addr };
+  document.getElementById('walletSection').innerHTML = `<p><strong>Wallet Address:</strong> ${addr}</p>`;
+  updatePortfolio();
 }
 
-// === Portfolio ===
+// --- Portfolio ---
+async function updateBalances() {
+  if(!wallet || !signer) { updatePortfolio(); return; }
+  try {
+    const avodaContract = new ethers.Contract(AVODA_ADDRESS, ERC20_ABI, signer);
+    const usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
+    const avodaBal = await avodaContract.balanceOf(wallet.address);
+    const usdtBal = await usdtContract.balanceOf(wallet.address);
+    const ethBal = await provider.getBalance(wallet.address);
+
+    balances.AVODA = parseFloat(ethers.formatUnits(avodaBal,18));
+    balances.USDT = parseFloat(ethers.formatUnits(usdtBal,6));
+    balances.ETH = parseFloat(ethers.formatEther(ethBal));
+    updatePortfolio();
+  } catch(e){ console.error(e); alert('Failed to fetch balances'); }
+}
+
 function updatePortfolio() {
-    document.getElementById('portfolioSection').innerHTML = `
+  document.getElementById('portfolioSection').innerHTML = `
     <p>AVODA: ${balances.AVODA}</p>
     <p>USDT: ${balances.USDT}</p>
     <p>ETH: ${balances.ETH}</p>
-    `;
+  `;
 }
 
-// === Send / Receive ===
+// --- Send / Receive ---
 function sendTokens() {
-    const addr = document.getElementById('sendAddress').value;
-    const amount = parseFloat(document.getElementById('sendAmount').value);
-    const token = 'AVODA'; // default token for demo
-
-    if (!wallet || !addr || !amount || balances[token] < amount) {
-        alert('Invalid input or insufficient balance');
-        return;
-    }
-
-    balances[token] -= amount;
-    transactions.push(`Sent ${amount} ${token} to ${addr}`);
-    updatePortfolio();
-    updateTxHistory();
+  const to = document.getElementById('sendAddress').value;
+  const amount = parseFloat(document.getElementById('sendAmount').value);
+  if(!wallet || !to || !amount){ alert('Invalid input'); return; }
+  balances.AVODA -= amount;
+  transactions.push(`Sent ${amount} AVODA → ${to}`);
+  updatePortfolio(); updateTxHistory();
 }
 
 function receiveTokens() {
-    if (!wallet) { alert('Create wallet first'); return; }
-    const qrDiv = document.getElementById('qrSection');
-    qrDiv.innerHTML = '';
-    QRCode.toCanvas(wallet.address, { width: 150 }, function(err, canvas) {
-        if(err) console.error(err);
-        qrDiv.appendChild(canvas);
-    });
+  if(!wallet){ alert('Create or connect wallet first'); return; }
+  const qrDiv = document.getElementById('qrSection'); qrDiv.innerHTML='';
+  QRCode.toCanvas(wallet.address, { width:150 }, function(err,canvas){ if(err)console.error(err); qrDiv.appendChild(canvas); });
 }
 
-// === Swap ===
+// --- Swap ---
 function swapTokens() {
-    const from = document.getElementById('fromToken').value;
-    const to = document.getElementById('toToken').value;
-    const amount = parseFloat(document.getElementById('swapAmount').value);
-
-    if (from === to) { alert('Select different tokens'); return; }
-    if (balances[from] < amount) { alert('Insufficient balance'); return; }
-
-    const rate = Math.random() * (1.2 - 0.8) + 0.8; // fake exchange rate
-    const received = parseFloat((amount * rate).toFixed(2));
-
-    balances[from] -= amount;
-    balances[to] += received;
-
-    transactions.push(`Swapped ${amount} ${from} → ${received} ${to}`);
-    updatePortfolio();
-    updateTxHistory();
-    document.getElementById('swapSection').innerText = `You received ${received} ${to} (rate ${rate.toFixed(2)})`;
+  const from = document.getElementById('fromToken').value;
+  const to = document.getElementById('toToken').value;
+  const amt = parseFloat(document.getElementById('swapAmount').value);
+  if(from===to || !amt){ alert('Invalid swap'); return; }
+  const rate = Math.random()*(1.2-0.8)+0.8; // fake rate
+  const received = parseFloat((amt*rate).toFixed(2));
+  balances[from]-=amt; balances[to]+=received;
+  transactions.push(`Swapped ${amt} ${from} → ${received} ${to}`);
+  updatePortfolio(); updateTxHistory();
+  document.getElementById('swapSection').innerText = `You received ${received} ${to} (rate ${rate.toFixed(2)})`;
 }
 
-// === Transaction History ===
+// --- Transaction History ---
 function updateTxHistory() {
-    const div = document.getElementById('txHistory');
-    div.innerHTML = '';
-    transactions.slice().reverse().forEach(tx => {
-        const p = document.createElement('p');
-        p.innerText = tx;
-        div.appendChild(p);
-    });
+  const div = document.getElementById('txHistory'); div.innerHTML='';
+  transactions.slice().reverse().forEach(tx=>{
+    const p=document.createElement('p'); p.innerText=tx; div.appendChild(p);
+  });
 }
+
 </script>
 </body>
-</html>
+    </html>
