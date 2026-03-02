@@ -3,174 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AVODA Premium Wallet Demo</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<title>AVODA ACADEMY V8</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-body { font-family: 'Inter', sans-serif; margin:0; background: linear-gradient(135deg,#0f2027,#203a43,#2c5364); display:flex; justify-content:center; align-items:flex-start; padding-top:40px; color:#fff;}
-.container { background:#1f2937; padding:30px; border-radius:20px; width:400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);}
-h2,h3{margin:10px 0;}
-button{width:100%; padding:12px; border:none; border-radius:10px; cursor:pointer; font-weight:600; margin:8px 0; transition:0.3s;}
-button:hover{opacity:0.9;}
-.btn-blue{background:linear-gradient(90deg,#4f46e5,#3b82f6);}
-.btn-green{background:linear-gradient(90deg,#10b981,#34d399);}
-.btn-red{background:linear-gradient(90deg,#ef4444,#f87171);}
-input{width:100%; padding:10px; margin:5px 0 15px; border-radius:8px; border:none;}
-.card{background:#111827; padding:15px; border-radius:15px; margin:10px 0; box-shadow:0 10px 25px rgba(0,0,0,0.4);}
-.tx-history p{background:#111827; padding:8px; border-radius:10px; margin:5px 0;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Orbitron',sans-serif}
+body{background:#0f0f0f;overflow-x:hidden;color:white;position:relative}
+canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1}
+
+header{padding:50px;text-align:center}
+h1{font-size:60px;background:linear-gradient(270deg,#ff003c,#ffcc00,#7a00ff,#00ffcc);background-size:600% 600%;-webkit-background-clip:text;color:transparent;animation:gradientMove 10s ease infinite}
+@keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.subtitle{color:#aaa;margin-top:20px;font-size:18px}
+
+.btn{display:inline-block;margin:20px;padding:15px 30px;border-radius:30px;background:linear-gradient(90deg,#ff003c,#ffcc00,#00ffcc);color:black;font-weight:bold;text-decoration:none;transition:0.3s;text-shadow:0 0 10px #fff}
+.btn:hover{transform:scale(1.1);box-shadow:0 0 30px #ff003c}
+
+section{padding:60px 10%}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px}
+.card{background:rgba(255,255,255,0.05);padding:25px;border-radius:20px;backdrop-filter:blur(10px);transition:0.3s;text-align:center;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:-50%;width:200%;height:100%;background:linear-gradient(90deg,#ff003c,#ffcc00,#7a00ff,#00ffcc);animation:shine 3s linear infinite;opacity:0.3;transform:skewX(-20deg)}
+@keyframes shine{0%{left:-50%}50%{left:50%}100%{left:-50%}}
+.card:hover{transform:translateY(-10px);background:rgba(255,255,255,0.1)}
+
+.mission{cursor:pointer;margin:10px 0;padding:20px;background:#111;border-radius:15px;transition:0.3s;font-weight:bold;text-align:center;box-shadow:0 0 5px #00ffcc}
+.mission:hover{background:#222;box-shadow:0 0 15px #00ffcc}
+.completed{color:#666;text-decoration:line-through}
+
+.progress-bar{background:#333;border-radius:20px;overflow:hidden;height:25px;margin-top:20px}
+.progress{height:100%;background:linear-gradient(90deg,#00ffcc,#0066ff,#ff00ff);width:0%;transition:0.5s}
+
+.leader{background:linear-gradient(135deg,#111,#222);padding:25px;border-radius:15px;text-align:center;font-weight:bold;text-shadow:0 0 10px #00ffcc}
+footer{text-align:center;padding:40px;color:#777}
+
 </style>
 </head>
 <body>
-<div class="container">
-<h2>AVODA Premium Wallet</h2>
 
-<!-- Wallet Section -->
-<button class="btn-blue" onclick="connectWallet()">Connect MetaMask</button>
-<button class="btn-green" onclick="createWallet()">Create Wallet</button>
-<button class="btn-green" onclick="importWallet()">Import Wallet</button>
-<div id="walletSection" class="card"></div>
+<canvas id="bg"></canvas>
 
-<h3>Portfolio</h3>
-<div id="portfolioSection" class="card">
-<p>AVODA: 0</p>
-<p>USDT: 0</p>
-<p>ETH: 0</p>
+<header>
+<h1>AVODA ACADEMY</h1>
+<p class="subtitle">Wealth • Trading • Business • Fitness • Crypto</p>
+<a href="#missions" class="btn">ENTER THE MOVEMENT</a>
+</header>
+
+<section id="missions">
+<h2>DAILY MISSION BOARD</h2>
+<div id="missionList">
+<div class="mission" onclick="completeMission(this,30)">Execute 1 A+ Trade</div>
+<div class="mission" onclick="completeMission(this,20)">20 Min Intense Workout</div>
+<div class="mission" onclick="completeMission(this,15)">Study Wealth 20 Min</div>
+<div class="mission" onclick="completeMission(this,25)">Analyze Crypto Project</div>
+<div class="mission" onclick="completeMission(this,10)">Build Income Skill</div>
 </div>
+<div class="progress-bar"><div class="progress" id="progress"></div></div>
+<p id="progressText">0 XP Completed</p>
+</section>
 
-<h3>Send / Receive</h3>
-<input id="sendAddress" placeholder="Recipient Address">
-<input id="sendAmount" placeholder="Amount">
-<button class="btn-blue" onclick="sendTokens()">Send Tokens</button>
-<button class="btn-blue" onclick="receiveTokens()">Show QR Code</button>
-<div id="qrSection" class="card"></div>
-
-<h3>Swap</h3>
-<select id="fromToken">
-<option value="AVODA">AVODA</option>
-<option value="USDT">USDT</option>
-<option value="ETH">ETH</option>
-</select>
-<select id="toToken">
-<option value="USDT">USDT</option>
-<option value="AVODA">AVODA</option>
-<option value="ETH">ETH</option>
-</select>
-<input id="swapAmount" placeholder="Amount">
-<button class="btn-blue" onclick="swapTokens()">Swap Tokens</button>
-<div id="swapSection" class="card"></div>
-
-<h3>Transaction History</h3>
-<div id="txHistory" class="tx-history card"></div>
+<section>
+<h2>ACADEMY PILLARS</h2>
+<div class="card-grid">
+<div class="card">Wealth Education</div>
+<div class="card">Trading Mastery</div>
+<div class="card">Business Strategy</div>
+<div class="card">Elite Fitness</div>
+<div class="card">Crypto Systems</div>
 </div>
+</section>
 
-<script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<section>
+<h2>ELITE LEADERBOARD</h2>
+<div class="card-grid" id="leaderboard">
+<div class="leader" id="user1">Alpha_01<br>320 XP</div>
+<div class="leader" id="user2">Alpha_02<br>270 XP</div>
+<div class="leader" id="user3">Alpha_03<br>210 XP</div>
+<div class="leader" id="user4">Alpha_04<br>150 XP</div>
+</div>
+</section>
+
+<footer>
+© 2026 AVODA ACADEMY — Foundation For Real Builders
+</footer>
+
 <script>
-// --- Variables ---
-let wallet = null;
-let signer = null;
-let provider = null;
-let balances = { AVODA: 1000, USDT: 500, ETH: 2 };
-let transactions = [];
+// Particle Background
+const canvas=document.getElementById('bg');const ctx=canvas.getContext('2d');canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+let particles=[];for(let i=0;i<150;i++){particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,radius:Math.random()*2+1,speedX:(Math.random()-0.5)*1.5,speedY:(Math.random()-0.5)*1.5})}
+function animateParticles(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);ctx.fillStyle='rgba(0,255,204,0.7)';ctx.fill();p.x+=p.speedX;p.y+=p.speedY;if(p.x<0||p.x>canvas.width)p.speedX*=-1;if(p.y<0||p.y>canvas.height)p.speedY*=-1;});requestAnimationFrame(animateParticles);}
+animateParticles();window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
 
-// Placeholder testnet token addresses (replace with real testnet AVODA + USDT)
-const AVODA_ADDRESS = '0x0000000000000000000000000000000000000001';
-const USDT_ADDRESS = '0x0000000000000000000000000000000000000002';
-const ERC20_ABI = [
-"function balanceOf(address owner) view returns (uint256)",
-"function transfer(address to, uint amount) returns (bool)"
-];
-
-// --- Wallet Functions ---
-async function connectWallet() {
-  if (!window.ethereum) return alert('Install MetaMask!');
-  try {
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
-    provider = new ethers.BrowserProvider(window.ethereum);
-    signer = await provider.getSigner();
-    const addr = await signer.getAddress();
-    wallet = { address: addr };
-    document.getElementById('walletSection').innerHTML = `<p><strong>Wallet Address:</strong> ${addr}</p>`;
-    await updateBalances();
-  } catch (e) { console.error(e); alert('Connection failed!'); }
+// Missions + XP
+let totalXP=0;
+function completeMission(el,xp){
+if(!el.classList.contains('completed')){
+el.classList.add('completed');
+totalXP+=xp;
+updateProgress();
+updateLeaderboard();
 }
-
-function createWallet() {
-  wallet = { address: '0x'+Math.random().toString(36).substring(2,15) };
-  document.getElementById('walletSection').innerHTML = `<p><strong>Wallet Address:</strong> ${wallet.address}</p>`;
-  updatePortfolio();
 }
-
-function importWallet() {
-  const addr = prompt("Enter wallet address:");
-  if (!addr) return;
-  wallet = { address: addr };
-  document.getElementById('walletSection').innerHTML = `<p><strong>Wallet Address:</strong> ${addr}</p>`;
-  updatePortfolio();
+function updateProgress(){
+document.getElementById('progress').style.width=Math.min(totalXP,320)/320*100+'%';
+document.getElementById('progressText').innerText=totalXP+' XP Completed';
 }
-
-// --- Portfolio ---
-async function updateBalances() {
-  if(!wallet || !signer) { updatePortfolio(); return; }
-  try {
-    const avodaContract = new ethers.Contract(AVODA_ADDRESS, ERC20_ABI, signer);
-    const usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
-    const avodaBal = await avodaContract.balanceOf(wallet.address);
-    const usdtBal = await usdtContract.balanceOf(wallet.address);
-    const ethBal = await provider.getBalance(wallet.address);
-
-    balances.AVODA = parseFloat(ethers.formatUnits(avodaBal,18));
-    balances.USDT = parseFloat(ethers.formatUnits(usdtBal,6));
-    balances.ETH = parseFloat(ethers.formatEther(ethBal));
-    updatePortfolio();
-  } catch(e){ console.error(e); alert('Failed to fetch balances'); }
+function updateLeaderboard(){
+let users=[{id:'user1',xp:320},{id:'user2',xp:270},{id:'user3',xp:210},{id:'user4',xp:150}];
+users[0].xp=totalXP;users.sort((a,b)=>b.xp-a.xp);
+users.forEach((u,i)=>{document.getElementById(u.id).innerHTML=`Alpha_0${i+1}<br>${u.xp} XP`;});
 }
-
-function updatePortfolio() {
-  document.getElementById('portfolioSection').innerHTML = `
-    <p>AVODA: ${balances.AVODA}</p>
-    <p>USDT: ${balances.USDT}</p>
-    <p>ETH: ${balances.ETH}</p>
-  `;
-}
-
-// --- Send / Receive ---
-function sendTokens() {
-  const to = document.getElementById('sendAddress').value;
-  const amount = parseFloat(document.getElementById('sendAmount').value);
-  if(!wallet || !to || !amount){ alert('Invalid input'); return; }
-  balances.AVODA -= amount;
-  transactions.push(`Sent ${amount} AVODA → ${to}`);
-  updatePortfolio(); updateTxHistory();
-}
-
-function receiveTokens() {
-  if(!wallet){ alert('Create or connect wallet first'); return; }
-  const qrDiv = document.getElementById('qrSection'); qrDiv.innerHTML='';
-  QRCode.toCanvas(wallet.address, { width:150 }, function(err,canvas){ if(err)console.error(err); qrDiv.appendChild(canvas); });
-}
-
-// --- Swap ---
-function swapTokens() {
-  const from = document.getElementById('fromToken').value;
-  const to = document.getElementById('toToken').value;
-  const amt = parseFloat(document.getElementById('swapAmount').value);
-  if(from===to || !amt){ alert('Invalid swap'); return; }
-  const rate = Math.random()*(1.2-0.8)+0.8; // fake rate
-  const received = parseFloat((amt*rate).toFixed(2));
-  balances[from]-=amt; balances[to]+=received;
-  transactions.push(`Swapped ${amt} ${from} → ${received} ${to}`);
-  updatePortfolio(); updateTxHistory();
-  document.getElementById('swapSection').innerText = `You received ${received} ${to} (rate ${rate.toFixed(2)})`;
-}
-
-// --- Transaction History ---
-function updateTxHistory() {
-  const div = document.getElementById('txHistory'); div.innerHTML='';
-  transactions.slice().reverse().forEach(tx=>{
-    const p=document.createElement('p'); p.innerText=tx; div.appendChild(p);
-  });
-}
-
 </script>
+
 </body>
-    </html>
+</html>
