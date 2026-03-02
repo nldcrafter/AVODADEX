@@ -3,26 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AVODA ACADEMY V8</title>
+<title>AVODA ACADEMY</title>
+
+<!-- Orbitron font -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
 <style>
+/* ======== GENERAL STYLES ======== */
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Orbitron',sans-serif}
-body{background:#0f0f0f;overflow-x:hidden;color:white;position:relative}
-canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1}
-
+body{background:#0f0f0f;color:white;overflow-x:hidden;position:relative}
 header{padding:50px;text-align:center}
-h1{font-size:60px;background:linear-gradient(270deg,#ff003c,#ffcc00,#7a00ff,#00ffcc);background-size:600% 600%;-webkit-background-clip:text;color:transparent;animation:gradientMove 10s ease infinite}
+h1{font-size:50px;background:linear-gradient(270deg,#ff003c,#ffcc00,#7a00ff,#00ffcc);background-size:600% 600%;-webkit-background-clip:text;color:transparent;animation:gradientMove 10s ease infinite}
 @keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-.subtitle{color:#aaa;margin-top:20px;font-size:18px}
-
+.subtitle{color:#aaa;margin-top:20px;font-size:18px;text-shadow:0 0 10px #00ffcc}
 .btn{display:inline-block;margin:20px;padding:15px 30px;border-radius:30px;background:linear-gradient(90deg,#ff003c,#ffcc00,#00ffcc);color:black;font-weight:bold;text-decoration:none;transition:0.3s;text-shadow:0 0 10px #fff}
 .btn:hover{transform:scale(1.1);box-shadow:0 0 30px #ff003c}
 
+/* ======== DASHBOARD ======== */
 section{padding:60px 10%}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px}
-.card{background:rgba(255,255,255,0.05);padding:25px;border-radius:20px;backdrop-filter:blur(10px);transition:0.3s;text-align:center;position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;top:0;left:-50%;width:200%;height:100%;background:linear-gradient(90deg,#ff003c,#ffcc00,#7a00ff,#00ffcc);animation:shine 3s linear infinite;opacity:0.3;transform:skewX(-20deg)}
-@keyframes shine{0%{left:-50%}50%{left:50%}100%{left:-50%}}
+.card{background:rgba(255,255,255,0.05);padding:25px;border-radius:20px;backdrop-filter:blur(10px);transition:0.3s;text-align:center;cursor:pointer}
 .card:hover{transform:translateY(-10px);background:rgba(255,255,255,0.1)}
 
 .mission{cursor:pointer;margin:10px 0;padding:20px;background:#111;border-radius:15px;transition:0.3s;font-weight:bold;text-align:center;box-shadow:0 0 5px #00ffcc}
@@ -33,45 +33,44 @@ section{padding:60px 10%}
 .progress{height:100%;background:linear-gradient(90deg,#00ffcc,#0066ff,#ff00ff);width:0%;transition:0.5s}
 
 .leader{background:linear-gradient(135deg,#111,#222);padding:25px;border-radius:15px;text-align:center;font-weight:bold;text-shadow:0 0 10px #00ffcc}
+
 footer{text-align:center;padding:40px;color:#777}
 
+.coming-soon{margin-top:20px;color:#ff0;text-shadow:0 0 10px #ff0;font-weight:bold;font-size:20px}
 </style>
 </head>
-<body>
 
-<canvas id="bg"></canvas>
+<body>
 
 <header>
 <h1>AVODA ACADEMY</h1>
 <p class="subtitle">Wealth • Trading • Business • Fitness • Crypto</p>
-<a href="#missions" class="btn">ENTER THE MOVEMENT</a>
+<a href="dashboard.html" target="_blank" class="btn">ENTER THE MOVEMENT</a>
+<div class="coming-soon" id="comingSoonMsg">🚀 COMING SOON… STAY TUNED 🚀</div>
 </header>
 
-<section id="missions">
+<section>
 <h2>DAILY MISSION BOARD</h2>
 <div id="missionList">
-<div class="mission" onclick="completeMission(this,30)">Execute 1 A+ Trade</div>
-<div class="mission" onclick="completeMission(this,20)">20 Min Intense Workout</div>
-<div class="mission" onclick="completeMission(this,15)">Study Wealth 20 Min</div>
-<div class="mission" onclick="completeMission(this,25)">Analyze Crypto Project</div>
-<div class="mission" onclick="completeMission(this,10)">Build Income Skill</div>
+<div class="mission" onclick="window.open('trade.html','_blank')">Execute 1 A+ Trade</div>
+<div class="mission" onclick="window.open('fitness.html','_blank')">20 Min Intense Workout</div>
+<div class="mission" onclick="window.open('wealth.html','_blank')">Study Wealth 20 Min</div>
+<div class="mission" onclick="window.open('crypto.html','_blank')">Analyze Crypto Project</div>
+<div class="mission" onclick="window.open('business.html','_blank')">Build Income Skill</div>
 </div>
+
 <div class="progress-bar"><div class="progress" id="progress"></div></div>
 <p id="progressText">0 XP Completed</p>
-</section>
 
-<section>
 <h2>ACADEMY PILLARS</h2>
 <div class="card-grid">
-<div class="card">Wealth Education</div>
-<div class="card">Trading Mastery</div>
-<div class="card">Business Strategy</div>
-<div class="card">Elite Fitness</div>
-<div class="card">Crypto Systems</div>
+<div class="card" onclick="window.open('wealth.html','_blank')">Wealth Education</div>
+<div class="card" onclick="window.open('trade.html','_blank')">Trading Mastery</div>
+<div class="card" onclick="window.open('business.html','_blank')">Business Strategy</div>
+<div class="card" onclick="window.open('fitness.html','_blank')">Elite Fitness</div>
+<div class="card" onclick="window.open('crypto.html','_blank')">Crypto Systems</div>
 </div>
-</section>
 
-<section>
 <h2>ELITE LEADERBOARD</h2>
 <div class="card-grid" id="leaderboard">
 <div class="leader" id="user1">Alpha_01<br>320 XP</div>
@@ -86,15 +85,10 @@ footer{text-align:center;padding:40px;color:#777}
 </footer>
 
 <script>
-// Particle Background
-const canvas=document.getElementById('bg');const ctx=canvas.getContext('2d');canvas.width=window.innerWidth;canvas.height=window.innerHeight;
-let particles=[];for(let i=0;i<150;i++){particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,radius:Math.random()*2+1,speedX:(Math.random()-0.5)*1.5,speedY:(Math.random()-0.5)*1.5})}
-function animateParticles(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);ctx.fillStyle='rgba(0,255,204,0.7)';ctx.fill();p.x+=p.speedX;p.y+=p.speedY;if(p.x<0||p.x>canvas.width)p.speedX*=-1;if(p.y<0||p.y>canvas.height)p.speedY*=-1;});requestAnimationFrame(animateParticles);}
-animateParticles();window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
-
-// Missions + XP
+// ======== XP & Leaderboard Logic ========
 let totalXP=0;
-function completeMission(el,xp){
+
+function completeMission(el,xp=0){
 if(!el.classList.contains('completed')){
 el.classList.add('completed');
 totalXP+=xp;
@@ -102,16 +96,21 @@ updateProgress();
 updateLeaderboard();
 }
 }
+
 function updateProgress(){
 document.getElementById('progress').style.width=Math.min(totalXP,320)/320*100+'%';
 document.getElementById('progressText').innerText=totalXP+' XP Completed';
 }
+
 function updateLeaderboard(){
 let users=[{id:'user1',xp:320},{id:'user2',xp:270},{id:'user3',xp:210},{id:'user4',xp:150}];
-users[0].xp=totalXP;users.sort((a,b)=>b.xp-a.xp);
-users.forEach((u,i)=>{document.getElementById(u.id).innerHTML=`Alpha_0${i+1}<br>${u.xp} XP`;});
+users[0].xp=totalXP;
+users.sort((a,b)=>b.xp-a.xp);
+users.forEach((u,i)=>{
+document.getElementById(u.id).innerHTML=`Alpha_0${i+1}<br>${u.xp} XP`;
+});
 }
 </script>
 
 </body>
-</html>
+  </html>
